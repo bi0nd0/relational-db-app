@@ -1,30 +1,35 @@
+import FormField from './FormField'
 import autore from './autore'
 
 export default {
     collection: 'opera',
     fields() {
         return [
-            // { name: 'id', label: 'id', type: 'text' },
-            { name: 'tsk', label: 'tsk', type: 'text', value: '' },
-            { name: 'lir', label: 'lir', type: 'text', value: '' },
-            { name: 'nctn', label: 'nctn', type: 'text', value: '' },
-            { name: 'nctr', label: 'nctr', type: 'text', value: '' },
-            { name: 'ogtn', label: 'ogtn', type: 'text', value: '' },
-            { name: 'ogtp', label: 'ogtp', type: 'text', value: '' },
-            {
+            // new FormField({ name: 'id', label: 'id', type: 'text' }),
+            new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
+            new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),
+            new FormField({ name: 'nctn', label: 'nctn', type: 'text', value: '' }),
+            new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
+            new FormField({ name: 'ogtn', label: 'ogtn', type: 'text', value: '' }),
+            new FormField({ name: 'ogtp', label: 'ogtp', type: 'text', value: '' }),
+            new FormField({
                 name: 'autore',
                 label: 'autore', type: 'manyToMany', value: [],
                 relation: 'autore',
                 foreign_key: 'autore_id',
                 preview: (item) => { return `${item.id} - ${item.autn}` },
                 fields: autore.fields(),
-            },
-            // { name: 'lc', label: 'lc', type: 'text', defaultValue: null },
+                filter: (text) => {
+                    if(text.trim()==='') return {}
+                    return { autn: { _contains: text } }
+                },
+            }),
+            // new FormField({ name: 'lc', label: 'lc', type: 'text', defaultValue: null }),
         
-            // { name: 'date_created', label: 'date_created', type: 'text' },
-            // { name: 'date_updated', label: 'date_updated', type: 'text' },
-            // { name: 'user_created', label: 'user_created', type: 'text' },
-            // { name: 'user_updated', label: 'user_updated', type: 'text' },
+            // new FormField({ name: 'date_created', label: 'date_created', type: 'text' }),
+            // new FormField({ name: 'date_updated', label: 'date_updated', type: 'text' }),
+            // new FormField({ name: 'user_created', label: 'user_created', type: 'text' }),
+            // new FormField({ name: 'user_updated', label: 'user_updated', type: 'text' }),
         ]
     },
     tableFields() {

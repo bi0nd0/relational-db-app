@@ -19,7 +19,6 @@
 
 <script>
 import {opera} from '../../settings'
-import itemsAPI from '../../API/items'
 import {directus} from '../../API/'
 import Form from '../common/Form/Form.vue'
 
@@ -45,7 +44,9 @@ export default {
     },
     methods: {
         async fetchData() {
-            const response = await directus.items(collection).readOne(this.id)
+            const response = await directus.items(collection).readOne(this.id, {
+                fields: '*.*',
+            })
             this.item = response
         },
         onCancelClicked() {
@@ -62,7 +63,6 @@ export default {
         async save(data) {
             try {
                 const response = await directus.items(collection).updateOne(this.id, data)
-                // console.log(response)
                 alert('saved successfully')
                 this.goToList()
             } catch (error) {

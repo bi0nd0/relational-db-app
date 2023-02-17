@@ -10,6 +10,9 @@
                 </button>
             </div>
         </template>
+        <template #cell(autore)="{item, field, value}" >
+            {{ value.map(v => v.autore_id) }}
+        </template>
     </Table>
 </template>
 
@@ -44,7 +47,7 @@ export default {
     },
     methods: {
         async fetch() {
-            const response = await directus.items(collection).readByQuery({limit: -1})
+            const response = await directus.items(collection).readByQuery({fields:'*.*',limit: -1})
             const {data=[]} = response
             this._items = data
         },

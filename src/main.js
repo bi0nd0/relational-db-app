@@ -3,8 +3,8 @@ import './style.css'
 import App from './App.vue'
 
 // global components
-import Drawer from './components/common/Drawer.vue'
-import Modal from './components/common/Modal.vue'
+import Drawer from './components/common/Modal/Drawer.vue'
+import Modal from './components/common/Modal/Modal.vue'
 
 const app = createApp(App)
 

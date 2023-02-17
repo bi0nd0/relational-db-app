@@ -1,6 +1,6 @@
 <template>
     <transition>
-        <div data-modal v-if="_visible" @click.self="onBackdropClicked">
+        <div data-modal v-if="isVisible" @click.self="onBackdropClicked">
             <div data-dialog>
                 <div data-content>
                     <div data-header>
@@ -31,96 +31,15 @@
 </template>
 
 <script>
-    import BodyStyleManager from './BodyStyleManager'
-    const bodyStyleManager = new BodyStyleManager()
-
-    const RETURN_VALUE = Object.freeze({
-        OK: 1,
-        CANCEL: 0,
-        ERROR: -1
-    })
-
-    // global reference to the resolve/reject in the show() promise
-    let showResolve, showReject = null
+     import Modal from './Modal'
 
     export default {
-        data() {
-            return {
-                _visible: false,
-            }
+        setup(props, context) {
+            const modal = new Modal(props, context)
+            return modal.setup()
         },
-        props: {
-            visible: { type: Boolean, default: false },
-            backdrop: { type: Boolean, default: false },
-            disableOutsideClick: { type: Boolean, default: false },
-            hideCancel: { type: Boolean, default: false },
-            okText: { type: String, default: 'Ok' },
-            cancelText: { type: String, default: 'Cancel' },
-            closeText: { type: String, default: '&times;' },
-            title: { type: String, default: '' },
-            body: { type: String, default: '' },
-        },
-        methods: {
-            show() {
-                if(!this._visible) {
-                    this._visible = true
-                    this.$emit('show', this)
-                    bodyStyleManager.applyStyle({overflow: 'hidden'})
-                }
-                const promise = new Promise((resolve, reject) => {
-                    // set a global reference to resolve and reject
-                    showResolve = resolve
-                    showReject = reject
-                })
-                return promise
-            },
-            hide(status=RETURN_VALUE.CANCEL) {
-                if(!this._visible) return
-                this._visible = false
-                this.$emit('hide', this, status)
-                bodyStyleManager.restoreStyle()
-
-                if(!showResolve || !showReject) return
-                switch (status) {
-                    case RETURN_VALUE.OK:
-                        showResolve(true)
-                        break;
-                    case RETURN_VALUE.CANCEL:
-                        showResolve(false)
-                        break;
-                    case RETURN_VALUE.ERROR:
-                        showReject(true)
-                        break;
-                    default:
-                        break;
-                }
-                // reset resolve and reject
-                showResolve = showReject = null
-            },
-            toggle() {
-                return this._visible ? this.hide() : this.show()
-            },
-            /**
-             * hide if the user clicks on the outside mask
-             */
-            cancel() { this.hide(RETURN_VALUE.CANCEL) },
-            onBackdropClicked(e) { if(!this.disableOutsideClick) this.cancel() },
-            onCloseClicked(e) { this.cancel() },
-            onCancelClicked(e) { this.cancel() },
-            onOkClicked(e) { this.hide(RETURN_VALUE.OK) },
-        },
-        watch: {
-            visible: {
-                immediate: true,
-                handler(value) {
-                    if(value===true) this.show()
-                    else this.hide()
-                }
-            }
-        }
+        props: Modal.props(),
     }
-
-    export { RETURN_VALUE }
 </script>
 
 <style scoped>

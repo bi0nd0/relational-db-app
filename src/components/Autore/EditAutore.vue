@@ -43,7 +43,9 @@ export default {
     },
     methods: {
         async fetchData() {
-            const response = await directus.items(collection).readOne(this.id)
+            const response = await directus.items(collection).readOne(this.id, {
+                fields: '*.*',
+            })
             this.item = response
         },
         onCancelClicked() {
