@@ -13,22 +13,26 @@ import Autori from '../pages/Autori.vue'
 import ListAutori from '../components/Autore/ListAutori.vue'
 import CreateAutore from '../components/Autore/CreateAutore.vue'
 import EditAutore from '../components/Autore/EditAutore.vue'
+import Login from '../pages/Login.vue'
+import Logout from '../pages/Logout.vue'
 
 
 const routes = [
     { path: '/', component: MainLayout, children: [
-        { path: '',  name: 'home', component: Home },
-        { path: '/notes',  name: 'notes', component: Notes },
+        { path: '',  name: 'home', component: Home ,meta: { requiresAuth: true } },
+        { path: '/notes',  name: 'notes', component: Notes, meta: { requiresAuth: true }  },
         { path: '/opere', component: Opere, children: [
             { path: '', name: 'opere', component: ListOpere },
             { path: 'create', name: 'createOpera', component: CreateOpera },
             { path: 'edit/:id', name: 'editOpera', component: EditOpera, props: true, },
-        ] },
+        ], meta: { requiresAuth: true } },
         { path: '/autori', component: Autori, children: [
             { path: '', name: 'autori', component: ListAutori },
             { path: 'create', name: 'createAutore', component: CreateAutore },
             { path: 'edit/:id', name: 'editAutore', component: EditAutore, props: true, },
-        ] },
+        ], meta: { requiresAuth: true } },
+        { path: '/login',  name: 'login', component: Login },
+        { path: '/logout',  name: 'logout', component: Logout },
         /* { path: '/test/:username',  name: 'test', component: Test },
         { path: '/opera/:id',  name: 'opera', component: Opera },
         { path: '/opere',  name: 'opere', components: {

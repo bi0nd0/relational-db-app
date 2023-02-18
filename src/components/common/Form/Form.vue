@@ -6,16 +6,14 @@
         <template v-for="(field, index) in fields" :key="index">
             <div class="mb-3">
                 <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
-                <template v-if="field.type=='manyToMany'">
-
-                    <ManyToManyField v-model="field.value"
-                        :field="field"
-                    >
-                    </ManyToManyField>
-                </template>
-                <template v-else>
-                    <input :type="field.type" :id="`field-${field.name}`" class="form-control" v-model="field.value">
-                </template>
+                <slot :name="`field-${field.name}`" :data="data" :fields="fields" :field="field">
+                    <template v-if="field.type=='manyToMany'">
+                        <ManyToManyField v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else>
+                        <input :type="field.type" :id="`field-${field.name}`" class="form-control" v-model="field.value">
+                    </template>
+                </slot>
             </div>
         </template>
         <!-- extra content in the body -->
@@ -32,6 +30,7 @@ import { ref, toRefs, watch, computed } from 'vue'
 import ManyToManyField from './ManyToManyField.vue'
 
 export default {
+    name: 'Form',
     components: { ManyToManyField },
     setup(props, context) {
         const {fields} = toRefs(props)

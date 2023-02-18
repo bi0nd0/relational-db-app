@@ -1,10 +1,14 @@
 <template>
     <section class="layout">
-        <div>
+        <header>
             <Menu/>
+        </header>
+        <main>
             <router-view />
-        </div>
-        <router-view name="drawer"/>
+        </main>
+        <aside>
+            <router-view name="drawer"/>
+        </aside>
     </section>
 </template>
 
@@ -17,10 +21,13 @@ export default {
 
 <style scoped>
 section {
-    display: grid;
+    /* display: grid; */
     grid-template-rows: max-content auto;
     grid-template-columns: auto auto;
+}
+main {
     padding: 10px;
-    max-width: 800px;
+
+
 }
 </style>

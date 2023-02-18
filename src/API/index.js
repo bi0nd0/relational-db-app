@@ -1,4 +1,5 @@
 import { Directus } from '@directus/sdk';
+import Authentication from './Authentication';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
 const accessToken = import.meta.env.VITE_DIRECTUS_STATIC_TOKEN
@@ -8,7 +9,7 @@ const config = {
 		mode: 'cookie', // 'json' in Node.js
 		autoRefresh: true,
 		msRefreshBeforeExpires: 30000,
-		staticToken: accessToken,
+		// staticToken: accessToken,
 	},
 	storage: {
 		prefix: '',
@@ -24,5 +25,6 @@ const config = {
 };
 
 const directus = new Directus(baseURL, config)
+const authentication = new Authentication(directus)
 
-export {directus}
+export {directus, authentication}

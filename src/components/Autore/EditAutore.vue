@@ -2,6 +2,7 @@
     <h2>Edit item ID #{{ id }}</h2>
 
     <Form :fields="fields">
+
         <template v-slot:footer="{data}">
             <div class="buttons">
                 <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
@@ -21,6 +22,7 @@
 import {autore} from '../../settings'
 import {directus} from '../../API/'
 import Form from '../common/Form/Form.vue'
+
 
 const collection = autore.collection
 const fields = autore.fields()

@@ -15,7 +15,7 @@
                         </template>
                     </div>
                     <template v-if="item.deleted">
-                        <button class="btn btn-sm btn-danger ms-auto" @click="onRestoreClicked(item)">
+                        <button class="btn btn-sm btn-info ms-auto" @click="onRestoreClicked(item)">
                             <font-awesome-icon icon="fa-solid fa-rotate-left" fixed-width/>
                         </button>
                     </template>
@@ -34,7 +34,7 @@
                     <span class="ms-1">Create New</span>
                 </button>
                 <button class="btn btn-sm btn-primary" @click="onAddExistingClicked">
-                    <font-awesome-icon icon="fa-solid fa-plus" fixed-width/>
+                    <font-awesome-icon icon="fa-solid fa-list" fixed-width/>
                     <span class="ms-1">Add Existing</span>
                 </button>
             </div>
@@ -45,8 +45,8 @@
     <Drawer ref="createDrawer">
         <template v-slot:header>
             <span>Create item</span>
-            <!-- <Form :fields="fields" /> -->
         </template>
+        <MyForm :fields="field.fields"/>
     </Drawer>
 
     <Drawer ref="selectDrawer">
@@ -65,18 +65,20 @@
         </template>
         <div>
             <template v-for="(item, index) in results" :key="index">
-                <div class="preview">
-                    <input class="form-check-input" :id="`select-${item.id}`" type="checkbox" v-model="selectedIDs" :value="item.id"/>
-                    <!-- run the preview function if available -->
-                    <label class="form-check-label ms-2" :for="`select-${item.id}`">
-                        <template v-if="typeof preview == 'function'">
-                            {{ preview(item) }}
-                        </template>
-                        <!-- show the id otherwise -->
-                        <template v-else>
-                            <span>{{ item.id }}</span>
-                        </template>
-                    </label>
+                <div class="card mt-2">
+                    <div class="preview card-body">
+                        <input class="form-check-input" :id="`select-${item.id}`" type="checkbox" v-model="selectedIDs" :value="item.id"/>
+                        <!-- run the preview function if available -->
+                        <label class="form-check-label ms-2" :for="`select-${item.id}`">
+                            <template v-if="typeof preview == 'function'">
+                                {{ preview(item) }}
+                            </template>
+                            <!-- show the id otherwise -->
+                            <template v-else>
+                                <span>{{ item.id }}</span>
+                            </template>
+                        </label>
+                    </div>
                 </div>
             </template>
         </div>
@@ -86,9 +88,8 @@
 
 <script>
 import FormField from '../../../settings/FormField'
-import { ref, toRefs, computed, watch } from 'vue'
+import { ref, toRefs, computed, watch, defineAsyncComponent } from 'vue'
 import {directus} from '../../../API/'
-import Form from '../Form/Form.vue'
 /**
  * A relation could be displayed as a number or an object;
  * the object contains an ID when updating and no ID when creating.
@@ -121,7 +122,7 @@ class MetaItem {
     deleted = false
     updated = false
 
-    constructor(itemID, relationID=null) {
+    constructor(itemID=null, relationID=null) {
         this.itemID = itemID
         this.relationID = relationID
     }
@@ -137,7 +138,13 @@ class MetaItem {
 }
 
 export default {
+    components: {
+        MyForm: defineAsyncComponent(() => import('../Form/Form.vue')),
+
+    },
     setup(props, context) {
+
+
 
         const items = ref([]) // list selected items (numeric form)
         const { modelValue, field } = toRefs(props)
@@ -219,16 +226,7 @@ export default {
         const results = ref([])
 
 
-         /**
-         * watch once, just the time to collect information
-         * when created
-         */
-         /* function init() {
-            const unwatch = watch(modelValue, async (value) => {
-                await fetchIDs(ids.value)
-                unwatch()
-            })
-        } */
+        const createdItem = ref({})
         
         /**
          * fetch a list of items matching specific IDs 
@@ -276,6 +274,11 @@ export default {
                 items.value.push(metaItem)
             })
         }
+        function addNew() {
+            const metaItem = new MetaItem()
+            metaItem.value = createdItem.value
+            items.value.push(metaItem)
+        }
         /**
          * search and remove one of the possible items as available in the modelValue:
          * number, object with ID, and object without ID
@@ -295,7 +298,12 @@ export default {
          */
         function onRemoveClicked(item) { remove(item)}
         function onRestoreClicked(item) { restore(item) }
-        function onCreateNewClicked() { createDrawer.value.show() }
+        async function onCreateNewClicked() {
+            createdItem.value = {} // reset
+            const response = await createDrawer.value.show()
+            if(response===false) return
+            else addNew()
+        }
         async function onAddExistingClicked() {
             selectedIDs.value = [] // reset ids
             query.value = '' // reset query
@@ -310,6 +318,7 @@ export default {
         // init() // fetch associated items
         return {
             selectedIDs,
+            createdItem,
             items, query, results, preview,
             createDrawer, selectDrawer, // refs
             onRemoveClicked, onRestoreClicked,
