@@ -7,10 +7,11 @@
 <script>
 import { ref } from 'vue'
 import {authentication} from '../API'
-import {router} from '../router'
+import { useRouter} from 'vue-router'
 
 export default {
     setup(props, context) {
+        const router = useRouter()
 
         async function logout() {
             const response = await authentication.logout()

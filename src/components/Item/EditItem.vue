@@ -19,71 +19,83 @@
 </template>
 
 <script>
-import {autore} from '../../settings'
+import { ref, watch, toRefs } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
+import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
-
-
-const collection = autore.collection
-const fields = autore.fields()
-const listRouteName = 'autori' // name of the route that lists the collection
 
 export default {
     components: { Form },
-    created() {
-        this.fetchData()
-    },
-    props: {
-        collection: { type: String, default: '' },
-        id: { type: String, default: null }, // this prop is coming from the router
-    },
-    data() {
-        return {
-            fields,
-            item: {}
-        }
-    },
-    methods: {
-        async fetchData() {
-            const response = await directus.items(collection).readOne(this.id, {
+    setup(props, context) {
+
+        const route = useRoute()
+        const router = useRouter()
+
+        const collection = ref('')
+        const fields = ref([])
+        const item = ref({})
+        
+        const {id} = toRefs(props)
+        
+        // watch the route and update data based on the collection param
+        watch(route, () => {
+            // infer the collection from the route
+            collection.value = route.params?.collection
+            if(!collection.value) return
+            // retrieve the settings
+            const itemSettings = settings[collection.value]
+            // define the subset of fields you need to view in the table
+            const collectionFields = itemSettings.fields()
+            fields.value = collectionFields
+            fetchData()
+        }, {immediate: true, deep: true})
+
+        watch(item, (item) => {
+            fields.value.forEach(field => {
+                field.value = item?.[field.name]
+            });
+        },{immediate: true,})
+
+        async function fetchData() {
+            const response = await directus.items(collection.value).readOne(id.value, {
                 fields: '*.*',
             })
-            this.item = response
-        },
-        onCancelClicked() {
+            item.value = response
+        }
+        function onCancelClicked() {
             const confirmed = confirm('Are you sure you want to leave this page?')
             if(!confirmed) return
-            this.goToList()
-        },
-        onSaveClicked(form) {
-            this.save(form)
-        },
-        goToList() {
-            this.$router.push({name: listRouteName})
-        },
-        async save(data) {
+            goToList()
+        }
+        function onSaveClicked(form) {
+            save(form)
+        }
+        function goToList() {
+            router.push({name: 'listItems', params: { collection: collection.value }})
+        }
+        async function save(data) {
             try {
-                const response = await directus.items(collection).updateOne(this.id, data)
+                const response = await directus.items(collection.value).updateOne(id.value, data)
                 // console.log(response)
                 alert('saved successfully')
-                this.goToList()
+                goToList()
             } catch (error) {
                 console.error(error)
                 alert(error)
             }
         }
-    },
-    watch: {
-        item: {
-            immediate: true,
-            handler(item) {
-                this.fields.forEach(field => {
-                    field.value = item?.[field.name]
-                });
-            }
+
+
+        return {
+            fields,item,
+            onCancelClicked,onSaveClicked,
         }
-    }
-    
+    },
+    props: {
+        collection: { type: String, default: '' },
+        id: { type: String, default: null }, // this prop is coming from the router
+    },
 }
 </script>
 

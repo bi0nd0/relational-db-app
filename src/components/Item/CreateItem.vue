@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
 import Form from '../common/Form/Form.vue'
@@ -34,12 +34,22 @@ export default {
     setup(props, context) {
         const route = useRoute()
         const router = useRouter()
-        // infer the collection from the route
-        const collection = route.params.collection
-        // retrieve the settings
-        const itemSettings = settings[collection]
-        // define the subset of fields you need to view in the table
-        const fields = ref(itemSettings.fields())
+        
+        const collection = ref('')
+        const fields = ref([])
+        
+        // watch the route and update data based on the collection param
+        watch(route, () => {
+            // infer the collection from the route
+            collection.value = route.params?.collection
+            if(!collection.value) return
+            // retrieve the settings
+            const itemSettings = settings[collection.value]
+            // define the subset of fields you need to view in the table
+            const collectionFields = itemSettings.fields()
+            // define the subset of fields you need to view in the table
+            fields.value = collectionFields
+        }, {immediate: true, deep: true})
 
         function onCancelClicked() {
             const confirmed = confirm('Are you sure you want to leave this page?')

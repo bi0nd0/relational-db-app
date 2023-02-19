@@ -8,7 +8,13 @@
         </router-link>
     </header>
 
-    <Table :items="items" :fields="fields">
+    <Table class="w-100" :items="items" :fields="fields">
+
+        <!-- dynamically assigna labels to each thead -->
+        <!-- <template v-for="(field, index) in fields" :key="index" #[`head(${field.key})`] >
+            {{ field.label ? field.label : field.key }}
+        </template> -->
+
         <template #cell(actions)="{item, field, value}" >
             <div class="actions">
                 <button title="edit" class="btn btn-sm btn-light" @click="onEditClicked(item)">
@@ -24,7 +30,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API/'
 import * as settings from '../../settings/'
@@ -37,40 +43,41 @@ export default {
         const route = useRoute()
         const router = useRouter()
         // infer the collection from the route
-        const collection = route.params.collection
-        // retrieve the settings
-        const itemSettings = settings[collection]
-        // define the subset of fields you need to view in the table
-        const collectionFields = itemSettings.tableFields()
+        const collection = ref('')
+        const items = ref([])
+        const fields = ref([])
+        
+        // watch the route and update data based on the collection param
+        watch(route, () => {
+            collection.value = route.params?.collection
+            if(!collection.value) return
+            // retrieve the settings
+            const itemSettings = settings[collection.value]
+            // define the subset of fields you need to view in the table
+            const collectionFields = itemSettings.tableFields()
+            fields.value = collectionFields
+            fetchData()
+        }, {immediate: true, deep: true})
 
-        const _items = ref([])
-        const _fields = ref(collectionFields)
-
-        const items = computed( ()=> _items.value )
-        const fields = computed( ()=> _fields.value )
-        const createLink = computed( ()=> ( { name: 'createItem', params: { collection } } ) )
-
+        const createLink = computed( ()=> ( { name: 'createItem', params: { collection:collection.value } } ) )
 
         async function fetchData() {
-            const response = await directus.items(collection).readByQuery({limit: -1})
+            const response = await directus.items(collection.value).readByQuery({limit: -1})
             const {data=[]} = response
-            _items.value = data
+            items.value = data
         }
         async function deleteItem(item) {
             const {id} = item
-            await directus.items(collection).deleteOne(id)
+            await directus.items(collection.value).deleteOne(id)
             fetchData()
         }
         function onEditClicked(item) {
-            router.push({name: 'editItem', params: { id: item.id, collection }})
+            router.push({name: 'editItem', params: { id: item.id, collection:collection.value }})
         }
         function onDeleteClicked(item) {
             const confirmed = confirm('Are you sure you want to delete this item?')
             if(confirmed) deleteItem(item)
         }
-
-
-        fetchData()
 
         return {
             items,fields,createLink,
@@ -87,5 +94,6 @@ export default {
 .actions {
     display: flex;
     gap: 5px;
+    justify-content: flex-end;
 }
 </style>

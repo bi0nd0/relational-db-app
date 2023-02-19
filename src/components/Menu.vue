@@ -1,5 +1,6 @@
 <script>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import store from '../store'
 
 export default {
@@ -7,9 +8,17 @@ export default {
     const accessToken = store?.tokenInfo?.access_token
     const authenticated = computed( ()=> store.authenticated )
     const user = computed( ()=> store.user )
+
+    const router = useRouter()
+
+    function confirmLogout() {
+          const confirmed = confirm('Are you sure you want to logout?')
+          if(confirmed) router.push({name: 'logout'})
+    }
     
     return {
-      authenticated,user
+      authenticated,user,
+      confirmLogout
     }
   }
 }
@@ -22,8 +31,8 @@ export default {
       <li class="nav-item"><router-link  :to="{name:'home'}" v-slot="{isExactActive, href}" custom>
         <a class="nav-link" :href="href" :class="isExactActive ? 'active' : ''">Home</a>
       </router-link></li>
-      <li class="nav-item"><router-link class="nav-link" :to="{name:'opere'}">Opere</router-link></li>
-      <li class="nav-item"><router-link class="nav-link" :to="{name:'autori'}">Autori</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" :to="{name:'listItems',params:{collection:'opera'}}">Opere</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" :to="{name:'listItems',params:{collection:'autore'}}">Autori</router-link></li>
       <li class="nav-item"><router-link class="nav-link" :to="{name:'notes'}">Notes</router-link></li>
     </ul>
 
@@ -35,10 +44,10 @@ export default {
             <span>{{user.first_name}}</span>
           </span>
         </li>
-        <li class="nav-item"><router-link class="nav-link" :to="{name:'logout'}">
+        <li class="nav-item"><a class="nav-link" style="cursor:pointer" @click="confirmLogout">
           <font-awesome-icon icon="fa-regular fa-circle-xmark" fixed-width/>
           <span>Logout</span>
-        </router-link></li>
+        </a></li>
       </template>
       <template v-else>
         <li class="nav-item"><router-link class="nav-link" :to="{name:'login'}">

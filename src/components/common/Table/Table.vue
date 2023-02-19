@@ -9,9 +9,8 @@
                         </span>
                         <span class="sort-index" v-html="sortIndex(field)"></span>
                     </span>
-                    <slot :name="`head(${field.key})`"
-                    :field="field" :data="this"
-                    >{{field.label}}</slot></th>
+                    <slot :name="`head(${field.key})`" :field="field" :data="this">{{field.label}}</slot>
+                </th>
             </template>
         </thead>
         <tbody>

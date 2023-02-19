@@ -43,7 +43,7 @@ export default {
             {key:'ogtp',label:'OGTP',sortable: true},
             {key:'lc',label:'Localizzazione',sortable: false},
             {key:'autore',label:'Autore',sortable: false},
-            {key:'ambito',label:'Ambito',sortable: false},
+            // {key:'ambito',label:'Ambito',sortable: false},
             {key:'actions',label:'Actions',sortable: false},
         ]
     }
