@@ -1,6 +1,6 @@
 <template>
     <header class="mb-2">
-        <router-link :to="{name: 'createAutore'}" custom v-slot="{ isActive, href, navigate }">
+        <router-link :to="createLink" custom v-slot="{ isActive, href, navigate }">
             <button class="btn btn-sm btn-primary" @click="navigate">
                 <font-awesome-icon icon="fa-solid fa-plus" fixed-width/>
                 <span class="ms-1">New</span>
@@ -27,25 +27,28 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API/'
-import {autore} from '../../settings/'
+import * as settings from '../../settings/'
 import Table from '../common/Table/Table.vue'
 
-// define the collection
-const collection = autore.collection
-// define the subset of fields you need to view in the table
-const collectionFields = autore.tableFields()
 
 export default {
     components: { Table },
     setup() {
         const route = useRoute()
         const router = useRouter()
+        // infer the collection from the route
+        const collection = route.params.collection
+        // retrieve the settings
+        const itemSettings = settings[collection]
+        // define the subset of fields you need to view in the table
+        const collectionFields = itemSettings.tableFields()
 
         const _items = ref([])
         const _fields = ref(collectionFields)
 
         const items = computed( ()=> _items.value )
         const fields = computed( ()=> _fields.value )
+        const createLink = computed( ()=> ( { name: 'createItem', params: { collection } } ) )
 
 
         async function fetchData() {
@@ -59,7 +62,7 @@ export default {
             fetchData()
         }
         function onEditClicked(item) {
-            router.push({name: 'editAutore', params: { id: item.id }})
+            router.push({name: 'editItem', params: { id: item.id, collection }})
         }
         function onDeleteClicked(item) {
             const confirmed = confirm('Are you sure you want to delete this item?')
@@ -70,11 +73,13 @@ export default {
         fetchData()
 
         return {
-            items,fields,
+            items,fields,createLink,
             onEditClicked,onDeleteClicked,
         }
     },
-    
+    props: {
+        collection: { type: String, default: '' },
+    },
 }
 </script>
 
