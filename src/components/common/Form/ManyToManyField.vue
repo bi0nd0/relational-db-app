@@ -46,7 +46,12 @@
         <template v-slot:header>
             <span>Create item</span>
         </template>
-        <MyForm :fields="field.fields"/>
+
+        <MyForm :fields="createdItem">
+            <template v-slot:footer="{data}">
+                <!-- {{ data }} -->
+            </template>
+        </MyForm>
     </Drawer>
 
     <Drawer ref="selectDrawer">
@@ -157,6 +162,7 @@ export default {
 
 
         const createDrawer = ref(null) // reference an item in the template
+        const createItemForm = ref(null) // reference an item in the template
 
         const selectDrawer = ref(null) // reference an item in the template
         /* const makeRelatedItemsSchema = () => {
@@ -168,6 +174,7 @@ export default {
             }
         }
         const relatedItems = ref(makeRelatedItemsSchema()) */
+
         const selectedIDs = ref([])
         const unwatch = watch(modelValue, async (value) => {
             const _ids = []
@@ -275,8 +282,15 @@ export default {
             })
         }
         function addNew() {
+            // todo: get data directly from the form in the creation drawer
+            const getData = (fields) => {
+                const onlyDirty = fields.filter(field => field.dirty===true)
+                const keyValuesList = onlyDirty.map(field => [field.name, field.value])
+                return Object.fromEntries(keyValuesList)
+            }
+            const data = getData(createdItem.value)
             const metaItem = new MetaItem()
-            metaItem.value = createdItem.value
+            metaItem.value = data
             items.value.push(metaItem)
         }
         /**
@@ -299,7 +313,7 @@ export default {
         function onRemoveClicked(item) { remove(item)}
         function onRestoreClicked(item) { restore(item) }
         async function onCreateNewClicked() {
-            createdItem.value = {} // reset
+            createdItem.value = field.value.fields() // reset
             const response = await createDrawer.value.show()
             if(response===false) return
             else addNew()
@@ -320,7 +334,7 @@ export default {
             selectedIDs,
             createdItem,
             items, query, results, preview,
-            createDrawer, selectDrawer, // refs
+            createDrawer, selectDrawer,createItemForm, // refs
             onRemoveClicked, onRestoreClicked,
             onCreateNewClicked, onAddExistingClicked, onSearchClicked,
         }

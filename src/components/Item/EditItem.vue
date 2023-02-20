@@ -58,10 +58,14 @@ export default {
         },{immediate: true,})
 
         async function fetchData() {
-            const response = await directus.items(collection.value).readOne(id.value, {
-                fields: '*.*',
-            })
-            item.value = response
+            try {
+                const response = await directus.items(collection.value).readOne(id.value, {
+                    fields: '*.*',
+                })
+                item.value = response
+            } catch (error) {
+                console.log(error)
+            }
         }
         function onCancelClicked() {
             const confirmed = confirm('Are you sure you want to leave this page?')

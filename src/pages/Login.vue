@@ -1,20 +1,22 @@
 <template>
-    <div class="card mt-5 w-50 mx-auto">
-        <div class="card-body">
-            <h5 class="card-title">Login</h5>
-            <div>
-                <label for="email" class="form-label">Email</label>
-                <input class="form-control" id="email" type="text" v-model="email"/>
-            </div>
-            <div>
-                <label for="password" class="form-label">Password</label>
-                <input class="form-control" id="password" type="password" v-model="password"/>
-            </div>
-            <div class="d-flex mt-2 justify-content-start align-items-center">
-                <button class="btn btn-primary" type="button" @click="login">Login</button>
+    <main>
+        <div class="card mt-5">
+            <div class="card-body">
+                <h5 class="card-title">Login</h5>
+                <div>
+                    <label for="email" class="form-label">Email</label>
+                    <input class="form-control" id="email" type="text" v-model="email"/>
+                </div>
+                <div>
+                    <label for="password" class="form-label">Password</label>
+                    <input class="form-control" id="password" type="password" v-model="password"/>
+                </div>
+                <div class="d-flex mt-2 justify-content-start align-items-center">
+                    <button class="btn btn-primary" type="button" @click="login">Login</button>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 </template>
 
 <script>
@@ -53,5 +55,8 @@ export default {
 </script>
 
 <style scoped>
-
+main {
+    max-width: 400px;
+    margin: 0 auto;
+}
 </style>

@@ -17,8 +17,8 @@ export default {
                 label: 'autore', type: 'manyToMany', value: [],
                 relation: 'autore',
                 foreign_key: 'autore_id',
-                preview: (item) => { return `${item?.id ?? '--'} - ${item.autn}` },
-                fields: autore.fields(),
+                preview: (item) => { return `${item?.id ?? '--'} - ${item?.autn}` },
+                fields: autore.fields,
                 filter: (text) => {
                     if(text.trim()==='') return {}
                     return { autn: { _contains: text } }

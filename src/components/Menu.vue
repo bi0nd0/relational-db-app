@@ -36,26 +36,39 @@ export default {
       <li class="nav-item"><router-link class="nav-link" :to="{name:'notes'}">Notes</router-link></li>
     </ul>
 
-    <ul class="nav">
-      <template v-if="authenticated">
-        <li class="nav-item navbar-text">
-          <span>
-            <font-awesome-icon icon="fa-solid fa-user" fixed-width/>
-            <span>{{user.first_name}}</span>
-          </span>
-        </li>
-        <li class="nav-item"><a class="nav-link" style="cursor:pointer" @click="confirmLogout">
-          <font-awesome-icon icon="fa-regular fa-circle-xmark" fixed-width/>
-          <span>Logout</span>
-        </a></li>
-      </template>
-      <template v-else>
+    
+    <template v-if="authenticated">
+      <ul class="nav">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span>
+                <font-awesome-icon icon="fa-solid fa-user" fixed-width/>
+                <span class="ms-2">{{user.first_name}}</span>
+            </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <!-- <li><a class="dropdown-item" href="#">Another action</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li> -->
+              <li><a class="dropdown-item" href="#" @click.prevent="confirmLogout">
+                <font-awesome-icon icon="fa-regular fa-circle-xmark" fixed-width/>
+                <span class="ms-2">Logout</span>
+              </a></li>
+            </ul>
+          </li>
+      </ul>
+    </template>
+    <template v-else>
+      <ul class="nav">
         <li class="nav-item"><router-link class="nav-link" :to="{name:'login'}">
-          <font-awesome-icon icon="fa-solid fa-right-to-bracket" fixed-width/>
-          <span>Login</span>
+          <button class="btn btn-sm btn-primary">
+            <font-awesome-icon icon="fa-solid fa-right-to-bracket" fixed-width/>
+            <span>Login</span>
+          </button>
         </router-link></li>
-      </template>
-    </ul>
+      </ul>
+    </template>
   </div>
 </nav>
 </template>
