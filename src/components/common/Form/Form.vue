@@ -38,15 +38,19 @@ export default {
         const data = computed(() => {
             const onlyDirty = fields.value.filter(field => field.dirty===true)
             const keyValuesList = onlyDirty.map(field => [field.name, field.value])
-            return Object.fromEntries(keyValuesList)
+            const _data = Object.fromEntries(keyValuesList)
+            context.emit('update:modelValue', _data)
+            return _data
         }) // form data (will be passed as prop in the slots)
 
         return {
             fields, data,
         }
     },
+    emits: ['update:modelValue'],
     props: {
-        fields: { type: Array, default: [] }
+        fields: { type: Array, default: [] },
+        modelValue: { type: [Array,Object], default: [] },
     },
 }
 </script>

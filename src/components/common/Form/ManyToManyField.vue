@@ -46,11 +46,9 @@
         <template v-slot:header>
             <span>Create item</span>
         </template>
+        {{ newItem }}
 
-        <MyForm :fields="createdItem">
-            <template v-slot:footer="{data}">
-                <!-- {{ data }} -->
-            </template>
+        <MyForm :fields="newItemFields" v-model="newItem">
         </MyForm>
     </Drawer>
 
@@ -165,15 +163,6 @@ export default {
         const createItemForm = ref(null) // reference an item in the template
 
         const selectDrawer = ref(null) // reference an item in the template
-        /* const makeRelatedItemsSchema = () => {
-            return {
-                selected: [],
-                created: [],
-                updated: [],
-                removed: [],
-            }
-        }
-        const relatedItems = ref(makeRelatedItemsSchema()) */
 
         const selectedIDs = ref([])
         const unwatch = watch(modelValue, async (value) => {
@@ -232,8 +221,9 @@ export default {
         const query = ref('')
         const results = ref([])
 
-
-        const createdItem = ref({})
+        // data for creating new items
+        const newItemFields = ref({})
+        const newItem = ref({})
         
         /**
          * fetch a list of items matching specific IDs 
@@ -283,12 +273,8 @@ export default {
         }
         function addNew() {
             // todo: get data directly from the form in the creation drawer
-            const getData = (fields) => {
-                const onlyDirty = fields.filter(field => field.dirty===true)
-                const keyValuesList = onlyDirty.map(field => [field.name, field.value])
-                return Object.fromEntries(keyValuesList)
-            }
-            const data = getData(createdItem.value)
+            const data = newItem.value
+            if(!data) return
             const metaItem = new MetaItem()
             metaItem.value = data
             items.value.push(metaItem)
@@ -313,7 +299,7 @@ export default {
         function onRemoveClicked(item) { remove(item)}
         function onRestoreClicked(item) { restore(item) }
         async function onCreateNewClicked() {
-            createdItem.value = field.value.fields() // reset
+            newItemFields.value = field.value.fields() // reset
             const response = await createDrawer.value.show()
             if(response===false) return
             else addNew()
@@ -329,10 +315,13 @@ export default {
         }
         function onSearchClicked() { search() }
 
+        const test = ref({})
+
         // init() // fetch associated items
         return {
+            newItem,
             selectedIDs,
-            createdItem,
+            newItemFields,
             items, query, results, preview,
             createDrawer, selectDrawer,createItemForm, // refs
             onRemoveClicked, onRestoreClicked,

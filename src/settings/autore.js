@@ -14,7 +14,7 @@ export default {
                 relation: 'autm',
                 foreign_key: 'autm_id',
                 preview: (item) => { return `${item.id} - ${item.tipo}` },
-                fields: autm.fields(),
+                fields: autm.fields,
                 filter: (text) => {
                     if(text.trim()==='') return {}
                     return { tipo: { _contains: text } }
@@ -31,7 +31,7 @@ export default {
             {key:'id',label:'ID',sortable:false},
             {key:'autn',label:'AUTN',sortable: true},
             {key:'auta',label:'AUTA',sortable: true},
-            {key:'autm',label:'AUTM',sortable: true},
+            {key:'autm',label:'AUTM',sortable: false},
             {key:'actions',label:'Actions',sortable: false},
         ]
     }
