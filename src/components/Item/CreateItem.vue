@@ -60,13 +60,13 @@ export default {
             save(form)
         }
         function goToList() {
-            router.push({name: 'listItems', params: { collection }})
+            router.push({name: 'listItems', params: { collection: collection.value }})
         }
         async function save(data) {
             try {
-                const response = await directus.items(collection).createOne(data)
+                const response = await directus.items(collection.value).createOne(data)
                 alert('saved successfully')
-                this.goToList()
+                goToList()
             } catch (error) {
                 console.error(error)
                 alert(error)
