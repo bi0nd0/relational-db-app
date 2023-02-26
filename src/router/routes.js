@@ -25,11 +25,11 @@ const routes = [
     { path: '/', component: MainLayout, children: [
         { path: '',  name: 'home', component: Home ,meta: { requiresAuth: true } },
         { path: '/notes',  name: 'notes', component: Notes, meta: { requiresAuth: true }  },
-        { path: '/autori', component: Autori, children: [
+        /* { path: '/autori', component: Autori, children: [
             { path: '', name: 'autori', component: ListAutori, meta: { settings: settings.autore} },
             { path: 'create', name: 'createAutore', component: CreateAutore },
             { path: 'edit/:id', name: 'editAutore', component: EditAutore, props: true, },
-        ], meta: { requiresAuth: true } },
+        ], meta: { requiresAuth: true } }, */
         { path: '/items/:collection', component: Items, children: [
             { path: '', name: 'listItems', component: ListItems },
             { path: 'create', name: 'createItem', component: CreateItem, props: true, },

@@ -1,6 +1,4 @@
 <template>
-    <h1>new</h1>
-
     <Form :fields="fields">
         <template v-slot:footer="{data}">
             <div class="buttons">

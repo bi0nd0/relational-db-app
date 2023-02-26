@@ -6,9 +6,6 @@
         <main>
             <router-view />
         </main>
-        <aside>
-            <router-view name="drawer"/>
-        </aside>
     </section>
 </template>
 
