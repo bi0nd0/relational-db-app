@@ -3,30 +3,31 @@
  * provide a structure for fields used in a form
  */
 export default class Field {
-    name
-    label
-    type
-    $initialValue // save initial value
-    $value // value that can be updated
+    name = ''
+    label = ''
+    type = 'text'
+    $initialValue = null // save initial value
+    $value = null// value that can be updated
     $dirty = false // mark the field as dirty if modified
+    
     // relational data
-    relation // for relational data
-    foreign_key // for relational data
-    preview // for relational data
-    fields // for relational data (list of fields )
-    filter // for searching
+    relation = null// for relational data
+    foreign_key = null// for relational data
+    preview = {} // for relational data
+    fields = [] // for relational data (list of fields )
+    filter = () => ({})// for searching
 
     constructor(params) {
-        this.name = params?.name ?? ''
-        this.label = params?.label ?? ''
-        this.type = params?.type ?? 'text'
+        if(params?.name) this.name = params.name
+        if(params?.label) this.label = params.label
+        if(params?.type) this.type = params.type
         this.$initialValue = this.$value = params?.value ?? this.#getDefaultValueByType(this.type)
         // relational data
-        this.relation = params?.relation ?? null
-        this.foreign_key = params?.foreign_key ?? null
-        this.preview = params?.preview ?? (() => ({}))
-        this.fields = params?.fields ?? (() => [])
-        this.filter = params?.filter ?? (() => ({}))
+        if(params?.relation) this.relation = params.relation
+        if(params?.foreign_key) this.foreign_key = params.foreign_key
+        if(params?.preview) this.preview = params.preview
+        if(params?.fields) this.fields = params.fields
+        if(params?.filter) this.filter = params.filter
     }
 
     get value() { return this.$value }

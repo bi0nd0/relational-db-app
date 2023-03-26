@@ -1,5 +1,5 @@
 <template>
-
+    <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     <div class="card">
         <div class="card-body items d-flex flex-column gap-2">
             <template v-for="(item, index) in items" :key="index">
@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import FormField from '../../../settings/FormField'
+import FormField from '../../../models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent } from 'vue'
 import {directus} from '../../../API/'
 /**

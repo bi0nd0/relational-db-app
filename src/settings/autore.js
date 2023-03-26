@@ -1,4 +1,4 @@
-import FormField from './FormField'
+import FormField from '../models/FormField'
 import autm from './autm'
 
 export default {

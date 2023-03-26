@@ -10,7 +10,8 @@ export default defineConfig({
       // string shorthand
       // with options
       '/api': {
-        target: 'http://localhost:8055',
+        // target: 'http://95.110.132.24:8057/',
+        target: 'http://localhost:8055/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },

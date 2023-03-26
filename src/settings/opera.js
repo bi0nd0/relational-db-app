@@ -1,4 +1,5 @@
-import FormField from './FormField'
+import FormField from '../models/FormField'
+import SelectField from '../models/SelectField'
 import autore from './autore'
 
 export default {
@@ -24,8 +25,12 @@ export default {
                     return { autn: { _contains: text } }
                 },
             }),
+            new SelectField({ name: 'type', label: 'type', type: 'select', value: '', options: [
+                { value: 'dipinto', label: 'Dipinto'},
+                { value: 'statua', label: 'Statua'},
+            ] }),
+            new FormField({ name: 'visible', label: 'visibile', type: 'checkbox', value: true }),
             // new FormField({ name: 'lc', label: 'lc', type: 'text', defaultValue: null }),
-        
             // new FormField({ name: 'date_created', label: 'date_created', type: 'text' }),
             // new FormField({ name: 'date_updated', label: 'date_updated', type: 'text' }),
             // new FormField({ name: 'user_created', label: 'user_created', type: 'text' }),
@@ -41,9 +46,11 @@ export default {
             {key:'nctn',label:'NCTN',sortable: true},
             {key:'ogtn',label:'OGTN',sortable: true},
             {key:'ogtp',label:'OGTP',sortable: true},
+            {key:'type',label:'Tipo',sortable: true},
             {key:'lc',label:'Localizzazione',sortable: false},
             {key:'autore',label:'Autore',sortable: false},
             // {key:'ambito',label:'Ambito',sortable: false},
+            {key:'visible',label:'Visibile',sortable: false},
             {key:'actions',label:'Actions',sortable: false},
         ]
     }

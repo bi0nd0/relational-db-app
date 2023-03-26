@@ -5,12 +5,24 @@
     <div>
         <template v-for="(field, index) in fields" :key="index">
             <div class="mb-3">
-                <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
                 <slot :name="`field-${field.name}`" :data="data" :fields="fields" :field="field">
                     <template v-if="field.type=='manyToMany'">
                         <ManyToManyField v-model="field.value" :field="field" />
                     </template>
+                    <template v-else-if="field.type=='checkbox'">
+                        <Checkbox v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else-if="field.type=='radio'">
+                        <Radio v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else-if="field.type=='select'">
+                        <SelectDropdown v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else-if="field.type=='simple-select'">
+                        <SelectSimple v-model="field.value" :field="field" />
+                    </template>
                     <template v-else>
+                        <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
                         <input :type="field.type" :id="`field-${field.name}`" class="form-control" v-model="field.value">
                     </template>
                 </slot>
@@ -19,40 +31,38 @@
         <!-- extra content in the body -->
         <slot :data="data" :fields="fields"></slot>
     </div>
-
+    {{ data }}
     <!-- footer -->
     <slot name="footer" :data="data" :fields="fields"></slot>
 
 </template>
 
-<script>
-import { ref, toRefs, watch, computed } from 'vue'
+<script setup>
+import { ref, toRefs, watch, computed, defineEmits, defineProps } from 'vue'
 import ManyToManyField from './ManyToManyField.vue'
+import Checkbox from './Checkbox.vue'
+import SelectDropdown from './SelectDropdown.vue'
+import SelectSimple from './SelectSimple.vue'
+import Radio from './Radio.vue'
 
-export default {
-    name: 'Form',
-    components: { ManyToManyField },
-    setup(props, context) {
-        const {fields} = toRefs(props)
+const emit = defineEmits(['update:modelValue'])
+const props = defineProps({
+    fields: { type: Array, default: [] },
+    modelValue: { type: [Array,Object], default: [] },
+})
 
-        const data = computed(() => {
-            const onlyDirty = fields.value.filter(field => field.dirty===true)
-            const keyValuesList = onlyDirty.map(field => [field.name, field.value])
-            const _data = Object.fromEntries(keyValuesList)
-            context.emit('update:modelValue', _data)
-            return _data
-        }) // form data (will be passed as prop in the slots)
+const {fields} = toRefs(props)
 
-        return {
-            fields, data,
-        }
-    },
-    emits: ['update:modelValue'],
-    props: {
-        fields: { type: Array, default: [] },
-        modelValue: { type: [Array,Object], default: [] },
-    },
-}
+const data = computed(() => {
+    const onlyDirty = fields.value.filter(field => field.dirty===true)
+    const keyValuesList = onlyDirty.map(field => [field.name, field.value])
+    const _data = Object.fromEntries(keyValuesList)
+    emit('update:modelValue', _data)
+    return _data
+}) // form data (will be passed as prop in the slots)
+
+
+
 </script>
 
 <style scoped>
