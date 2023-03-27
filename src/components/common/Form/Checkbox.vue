@@ -14,12 +14,12 @@
 </template>
 
 <script setup>
-import { ref, toRefs, defineProps, defineEmits, computed } from 'vue'
+import { ref, toRefs, computed } from 'vue'
 import FormField from '../../../models/FormField'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
-    modelValue: { type: Boolean, default: false },
+    modelValue: { type: Array, default: () =>[] },
     field: { type: FormField, default: null },
 })
 

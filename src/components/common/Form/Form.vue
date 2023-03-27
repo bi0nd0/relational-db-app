@@ -4,10 +4,11 @@
 
     <div>
         <template v-for="(field, index) in fields" :key="index">
+            
             <div class="mb-3">
                 <slot :name="`field-${field.name}`" :data="data" :fields="fields" :field="field">
                     <template v-if="field.type=='manyToMany'">
-                        <ManyToManyField v-model="field.value" :field="field" />
+                        <ManyToMany v-model="field.value" :field="field" />
                     </template>
                     <template v-else-if="field.type=='checkbox'">
                         <Checkbox v-model="field.value" :field="field" />
@@ -23,6 +24,9 @@
                     </template>
                     <template v-else-if="field.type=='simple-select'">
                         <SelectSimple v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else-if="field.type=='divider'">
+                        <Divider />
                     </template>
                     <template v-else>
                         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
@@ -41,13 +45,14 @@
 </template>
 
 <script setup>
-import { ref, toRefs, watch, computed, defineEmits, defineProps } from 'vue'
-import ManyToManyField from './ManyToManyField.vue'
+import { ref, toRefs, watch, computed } from 'vue'
+import ManyToMany from './ManyToMany.vue'
 import Toggle from './Toggle.vue'
 import Checkbox from './Checkbox.vue'
 import SelectDropdown from './SelectDropdown.vue'
 import SelectSimple from './SelectSimple.vue'
 import Radio from './Radio.vue'
+import Divider from './Divider.vue'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({

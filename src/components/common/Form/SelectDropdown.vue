@@ -1,6 +1,8 @@
 <template>
     <div class="d-flex flex-column">
-        <label class="mb-2" :for="`field-${field.name}`" v-html="field.label" />
+        <slot name="label">
+            <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+        </slot>
 
         <Dropdown variant="primary" size="sm" v-bind="{...$attrs}">
             <template #button>
@@ -14,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, toRefs, defineProps, defineEmits, computed } from 'vue'
+import { ref, toRefs, computed } from 'vue'
 import SelectField from '../../../models/SelectField'
 import Dropdown from '../Dropdown/Dropdown.vue'
 import DropdownItem from '../Dropdown/DropdownItem.vue';

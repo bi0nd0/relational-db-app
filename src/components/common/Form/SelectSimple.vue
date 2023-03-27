@@ -1,6 +1,8 @@
 <template>
     <div class="d-flex flex-column">
-        <label class="mb-2" :for="`field-${field.name}`" v-html="field.label" />
+        <slot name="label">
+            <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+        </slot>
 
         <select v-model="selected" :id="`field-${field.name}`">
             <option :value="null" v-text="field.emptyText"></option>
@@ -14,7 +16,7 @@
 </template>
 
 <script setup>
-import { toRefs, defineProps, defineEmits, computed } from 'vue'
+import { toRefs, computed } from 'vue'
 import SelectField from '../../../models/SelectField'
 
 const emit = defineEmits(['update:modelValue'])

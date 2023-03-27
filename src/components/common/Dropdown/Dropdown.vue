@@ -71,7 +71,6 @@ const classes = computed( () => {
 } )
 
 const dropdown = onMounted( () => {
-    console.log(dropDownElement.value)
     const _dropdown = new Dropdown(dropDownElement.value, options.value)
 } )
 </script>

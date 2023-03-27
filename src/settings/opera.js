@@ -5,6 +5,7 @@ import {
     ManyToManyField,
     RadioField,
 } from '../models'
+import Divider from '../models/Divider'
 import autore from './autore'
 
 export default {
@@ -18,6 +19,7 @@ export default {
             new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
             new FormField({ name: 'ogtn', label: 'ogtn', type: 'text', value: '' }),
             new FormField({ name: 'ogtp', label: 'ogtp', type: 'text', value: '' }),
+            new Divider({ type: 'divider' }),
             new ManyToManyField({
                 name: 'autore',
                 label: 'autore', type: 'manyToMany', value: [],
