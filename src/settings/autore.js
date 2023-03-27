@@ -1,4 +1,4 @@
-import FormField from '../models/FormField'
+import { FormField, ManyToManyField } from '../models'
 import autm from './autm'
 
 export default {
@@ -8,7 +8,7 @@ export default {
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
             new FormField({ name: 'autn', label: 'autn', type: 'text', value: '' }),
             new FormField({ name: 'auta', label: 'auta', type: 'text', value: '' }),
-            new FormField({
+            new ManyToManyField({
                 name: 'autm',
                 label: 'autm', type: 'manyToMany', value: [],
                 relation: 'autm',

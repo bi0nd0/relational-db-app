@@ -1,5 +1,10 @@
-import FormField from '../models/FormField'
-import SelectField from '../models/SelectField'
+import {
+    FormField,
+    CheckboxField,
+    SelectField,
+    ManyToManyField,
+    RadioField,
+} from '../models'
 import autore from './autore'
 
 export default {
@@ -13,7 +18,7 @@ export default {
             new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
             new FormField({ name: 'ogtn', label: 'ogtn', type: 'text', value: '' }),
             new FormField({ name: 'ogtp', label: 'ogtp', type: 'text', value: '' }),
-            new FormField({
+            new ManyToManyField({
                 name: 'autore',
                 label: 'autore', type: 'manyToMany', value: [],
                 relation: 'autore',
@@ -29,7 +34,24 @@ export default {
                 { value: 'dipinto', label: 'Dipinto'},
                 { value: 'statua', label: 'Statua'},
             ] }),
-            new FormField({ name: 'visible', label: 'visibile', type: 'checkbox', value: true }),
+            new CheckboxField({ name: 'materials', label: 'Materiali', type: 'checkbox', value: [],
+                inline: false,
+                options: [
+                    { value: 'pietra', label: 'Pietra'},
+                    { value: 'carta', label: 'Carta'},
+                    { value: 'acqua', label: 'Acqua'},
+                    { value: 'fuoco', label: 'Fuoco'},
+                ]
+            }),
+            new RadioField({ name: 'color', label: 'colore', type: 'radio', value: '',
+                inline: false,
+                choices: [
+                    { value: 'rosso', label: 'Rosso'},
+                    { value: 'blu', label: 'Blu'},
+                    { value: 'verde', label: 'Verde'},
+                ]
+            }),
+            new FormField({ name: 'visible', label: 'visibile', type: 'toggle', value: true }),
             // new FormField({ name: 'lc', label: 'lc', type: 'text', defaultValue: null }),
             // new FormField({ name: 'date_created', label: 'date_created', type: 'text' }),
             // new FormField({ name: 'date_updated', label: 'date_updated', type: 'text' }),
@@ -48,6 +70,8 @@ export default {
             {key:'ogtp',label:'OGTP',sortable: true},
             {key:'type',label:'Tipo',sortable: true},
             {key:'lc',label:'Localizzazione',sortable: false},
+            {key:'materials',label:'Materiali',sortable: false},
+            {key:'color',label:'Colore',sortable: true},
             {key:'autore',label:'Autore',sortable: false},
             // {key:'ambito',label:'Ambito',sortable: false},
             {key:'visible',label:'Visibile',sortable: false},

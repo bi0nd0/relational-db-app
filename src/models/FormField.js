@@ -2,41 +2,30 @@
 /**
  * provide a structure for fields used in a form
  */
-export default class Field {
+export default class {
     name = ''
     label = ''
     type = 'text'
-    $initialValue = null // save initial value
-    $value = null// value that can be updated
-    $dirty = false // mark the field as dirty if modified
+    __initialValue = null // save initial value
+    __value = null// value that can be updated
+    __dirty = false // mark the field as dirty if modified
     
-    // relational data
-    relation = null// for relational data
-    foreign_key = null// for relational data
-    preview = {} // for relational data
-    fields = [] // for relational data (list of fields )
-    filter = () => ({})// for searching
+
 
     constructor(params) {
         if(params?.name) this.name = params.name
         if(params?.label) this.label = params.label
         if(params?.type) this.type = params.type
-        this.$initialValue = this.$value = params?.value ?? this.#getDefaultValueByType(this.type)
-        // relational data
-        if(params?.relation) this.relation = params.relation
-        if(params?.foreign_key) this.foreign_key = params.foreign_key
-        if(params?.preview) this.preview = params.preview
-        if(params?.fields) this.fields = params.fields
-        if(params?.filter) this.filter = params.filter
+        this.__initialValue = this.__value = params?.value ?? this.#getDefaultValueByType(this.type)
     }
 
-    get value() { return this.$value }
+    get value() { return this.__value }
     set value(value) {
-        this.$dirty = true
-        this.$value = value
+        this.__dirty = true
+        this.__value = value
     }
 
-    get dirty() { return this.$dirty }
+    get dirty() { return this.__dirty }
 
     #getDefaultValueByType(type) {
         let value
@@ -55,6 +44,5 @@ export default class Field {
         }
         return value
     }
-
 
 }

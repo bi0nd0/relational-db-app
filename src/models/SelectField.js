@@ -2,7 +2,7 @@ import { FormField } from "."
 /**
  * provide a structure for fields used in a form
  */
-export default class SelectField extends FormField {
+export default class extends FormField {
     emptyText = 'Select an option...'
     options = []
 

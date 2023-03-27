@@ -1,7 +1,15 @@
 <template>
-    <div class="d-flex">
-        <label :for="`field-${field.name}`" v-html="field.label"></label>
-        <input class="ms-2" type="checkbox" :id="`field-${field.name}`" value="1" v-model="checked">
+    <div class="d-flex flex-column">
+        <label class="mb-2" :for="`field-${field.name}`" v-html="field.label"></label>
+
+        <div :class="{['d-flex flex-row gap-2']: field.inline}">
+            <template v-for="(option, index) in field.options" :key="index">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" :id="`field-${option.value}`" :value="option.value" v-model="selected">
+                    <label class="form-check-label" :for="`field-${option.value}`" v-html="option.label"></label>
+                </div>
+            </template>
+        </div>
     </div>
 </template>
 
@@ -15,10 +23,10 @@ const props = defineProps({
     field: { type: FormField, default: null },
 })
 
-const {field} = toRefs(props)
+const { field } = toRefs(props)
 
-const checked = computed({
-    get() { return field.value.value },
+const selected = computed({
+    get() { return field.value.value ?? [] },
     set(value) {
         emit('update:modelValue', value)
     },

@@ -12,6 +12,9 @@
                     <template v-else-if="field.type=='checkbox'">
                         <Checkbox v-model="field.value" :field="field" />
                     </template>
+                    <template v-else-if="field.type=='toggle'">
+                        <Toggle v-model="field.value" :field="field" />
+                    </template>
                     <template v-else-if="field.type=='radio'">
                         <Radio v-model="field.value" :field="field" />
                     </template>
@@ -31,7 +34,7 @@
         <!-- extra content in the body -->
         <slot :data="data" :fields="fields"></slot>
     </div>
-    {{ data }}
+    <!-- {{ data }} -->
     <!-- footer -->
     <slot name="footer" :data="data" :fields="fields"></slot>
 
@@ -40,6 +43,7 @@
 <script setup>
 import { ref, toRefs, watch, computed, defineEmits, defineProps } from 'vue'
 import ManyToManyField from './ManyToManyField.vue'
+import Toggle from './Toggle.vue'
 import Checkbox from './Checkbox.vue'
 import SelectDropdown from './SelectDropdown.vue'
 import SelectSimple from './SelectSimple.vue'
