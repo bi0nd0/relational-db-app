@@ -9,7 +9,7 @@ export default class extends FormField {
     
     // relational data
     related = null// name of related collection
-    foreign_key = null// id of related collection in many to many table
+    foreign_key = null// field with the ID off the related collection
     preview = {} // for relational data
     fields = [] // list of fields of related collection
     filter = () => ({})// for searching

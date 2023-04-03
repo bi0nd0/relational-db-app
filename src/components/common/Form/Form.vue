@@ -10,6 +10,9 @@
                     <template v-if="field.type=='manyToMany'">
                         <ManyToMany v-model="field.value" :field="field" />
                     </template>
+                    <template v-if="field.type=='manyToOne'">
+                        <ManyToOne v-model="field.value" :field="field" />
+                    </template>
                     <template v-else-if="field.type=='checkbox'">
                         <Checkbox v-model="field.value" :field="field" />
                     </template>
@@ -45,14 +48,17 @@
 </template>
 
 <script setup>
-import { ref, toRefs, watch, computed } from 'vue'
-import ManyToMany from './ManyToMany.vue'
-import Toggle from './Toggle.vue'
-import Checkbox from './Checkbox.vue'
-import SelectDropdown from './SelectDropdown.vue'
-import SelectSimple from './SelectSimple.vue'
-import Radio from './Radio.vue'
-import Divider from './Divider.vue'
+import { toRefs, computed } from 'vue'
+import {
+    ManyToMany,
+    ManyToOne,
+    Toggle,
+    Checkbox,
+    SelectDropdown,
+    SelectSimple,
+    Radio,
+    Divider,
+} from '.'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
@@ -69,8 +75,6 @@ const data = computed(() => {
     emit('update:modelValue', _data)
     return _data
 }) // form data (will be passed as prop in the slots)
-
-
 
 </script>
 

@@ -49,7 +49,7 @@
         <template v-slot:header>
             <span>Create item</span>
         </template>
-        {{ newItem }}
+        <!-- {{ newItem }} -->
 
         <MyForm :fields="newItemFields" v-model="newItem">
         </MyForm>
@@ -92,10 +92,11 @@
 
 </template>
 
-<script>
-import FormField from '../../../models/FormField'
+<script setup>
+import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent } from 'vue'
-import {directus} from '../../../API/'
+import {directus} from '@/API/'
+import { MetaItem } from '.'
 /**
  * A relation could be displayed as a number or an object;
  * the object contains an ID when updating and no ID when creating.
@@ -121,222 +122,205 @@ import {directus} from '../../../API/'
  *   ]
  */
 
-class MetaItem {
-    relationID // id of the many to many relation in the table
-    itemID // id ot the related item
-    value
-    deleted = false
-    updated = false
 
-    constructor(itemID=null, relationID=null) {
-        this.itemID = itemID
-        this.relationID = relationID
+
+const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
+
+
+const emit = defineEmits([ 'update:modelValue' ])
+const props = defineProps({
+    modelValue: { type: [Array,Object], default: () => ([]) }, // v-model
+    field: { type: FormField, default: null },
+})
+
+
+
+const items = ref([]) // list selected items (numeric form)
+const { modelValue, field } = toRefs(props)
+const {
+    related, // name of the collection relation
+    foreign_key, // field for the connection
+    preview, // function used to preview the item
+    filter, // filter function used when searching for an item by text
+} = field.value
+
+
+const createDrawer = ref(null) // reference an item in the template
+const createItemForm = ref(null) // reference an item in the template
+
+const selectDrawer = ref(null) // reference an item in the template
+
+const selectedIDs = ref([])
+/**
+ * observe the model (list of ids) once.
+ * for each item, make a list of IDs and create MetaItems
+ */
+const unwatch = watch(modelValue, async (value) => {
+    const _ids = []
+    let list = []
+    for (let item of value) {
+        const relationID = item.id
+        const itemID = item[foreign_key]
+
+        const metaItem = new MetaItem(itemID, relationID)
+        _ids.push(itemID)
+        list.push(metaItem)
     }
-
-    get isExisting() {
-        if(!this.relationID) return false
-        if(this.updated) return false
-        return true
+    if(_ids.length>0) {
+        // if we have ids (selected items) then fetch and assign data
+        const data = await fetchIDs(_ids)
+        data.forEach(element => {
+            const id = element?.id
+            const _metaItem = list.find(item => item.itemID===id)
+            // set the value of each MetaItem created earlier
+            if(_metaItem) _metaItem.value = element
+        })
     }
+    items.value = list
+    unwatch() // run just once!
+})
+
+watch(items, (list) => {
+    const data = []
+    list.forEach(metaItem => {
+        if(metaItem.deleted) return
+        if(metaItem.isExisting) {
+            data.push(metaItem.relationID) // use the same relation ID since nothing changed
+        }
+        else {
+            let payload = {[foreign_key]: metaItem.value}
+            data.push(payload)
+        }
+    })
+    emit('update:modelValue', data)
+
+}, {
+    deep:true
+})
+
+const currentIDs = computed(() => {
+    const _ids = []
+    items.value.forEach(item => {
+        const id = item?.value?.id
+        if(id) _ids.push(id)
+    })
+    return _ids
+})
 
 
+
+const query = ref('')
+const results = ref([])
+
+// data for creating new items
+const newItemFields = ref({})
+const newItem = ref({})
+
+/**
+ * fetch a list of items matching specific IDs 
+ */
+async function getById(id) {
+    // make a request filtering by id
+    const item = await directus.items(related).readOne(id)
+    return item
+}
+async function fetchIDs(ids=[]) {
+    if(ids.length==0) return
+    // make a request filtering by id
+    const response = await directus.items(related).readByQuery({
+        filter: {
+            id: {
+                _in: ids
+            }
+        },
+        limit: -1
+    })
+    const {data=[]} = response
+    return data
+}
+async function search() {
+    const text = query.value
+    const params = { limit: -1 } // default params
+    params.filter = filter(text) // apply filter if a query is set
+    const existingIDs = currentIDs.value
+    if(existingIDs.length>0) {
+        params.filter.id = {
+            _nin: currentIDs.value 
+        }
+    }
+    const response = await directus.items(related).readByQuery(params)
+    const {data=[]} = response
+    results.value = data
+}
+async function addExisting() {
+    const _ids = selectedIDs.value
+    if(_ids.length===0) return
+    const data = await fetchIDs(_ids)
+    data.forEach(element => {
+        const metaItem = new MetaItem(element.id)
+        metaItem.value = element
+        items.value.push(metaItem)
+    })
+}
+function addNew() {
+    // todo: get data directly from the form in the creation drawer
+    const data = newItem.value
+    if(!data) return
+    const metaItem = new MetaItem()
+    metaItem.value = data
+    items.value.push(metaItem)
+}
+/**
+ * search and remove one of the possible items as available in the modelValue:
+ * number, object with ID, and object without ID
+ * @param {Object} itemToRemove 
+ */
+function remove(item) {
+    item.deleted = true // mark the metaitem as deleted
+}
+function restore(item) {
+    item.deleted = false // mark the metaitem as deleted
+}
+/**
+ * remove the item from both
+ * the ids (triggering the v-model update)
+ * and from the items
+ * @param {Object} itemToRemove 
+ */
+function onRemoveClicked(item) { remove(item)}
+function onRestoreClicked(item) { restore(item) }
+async function onCreateNewClicked() {
+    newItemFields.value = field.value.fields() // reset
+    const response = await createDrawer.value.show()
+    if(response===false) return
+    else addNew()
+}
+async function onAddExistingClicked() {
+    selectedIDs.value = [] // reset ids
+    query.value = '' // reset query
+    await search()
+    const response = await selectDrawer.value.show()
+    if(response===false) return
+    else addExisting()
 
 }
+function onSearchClicked() { search() }
 
-export default {
-    components: {
-        MyForm: defineAsyncComponent(() => import('../Form/Form.vue')),
+const test = ref({})
 
-    },
-    setup(props, context) {
-
-
-
-        const items = ref([]) // list selected items (numeric form)
-        const { modelValue, field } = toRefs(props)
-        const {
-            relation, // name of the collection
-            foreign_key, // field for the connection
-            preview, // function used to preview the item
-            filter, // filter function used when searching for an item by text
-        } = field.value
+// init() // fetch associated items
+/* return {
+    newItem,
+    selectedIDs,
+    newItemFields,
+    items, query, results, preview,
+    createDrawer, selectDrawer,createItemForm, // refs
+    onRemoveClicked, onRestoreClicked,
+    onCreateNewClicked, onAddExistingClicked, onSearchClicked,
+} */
 
 
-        const createDrawer = ref(null) // reference an item in the template
-        const createItemForm = ref(null) // reference an item in the template
 
-        const selectDrawer = ref(null) // reference an item in the template
-
-        const selectedIDs = ref([])
-        const unwatch = watch(modelValue, async (value) => {
-            const _ids = []
-            let list = []
-            for (let item of value) {
-                const relationID = item.id
-                const itemID = item[foreign_key]
-
-                const metaItem = new MetaItem(itemID, relationID)
-                _ids.push(itemID)
-                list.push(metaItem)
-            }
-            if(_ids.length>0) {
-                // if we have ids (selected items, then fetch and assign data)
-                const data = await fetchIDs(_ids)
-                data.forEach(element => {
-                    const id = element?.id
-                    const _metaItem = list.find(item => item.itemID===id)
-                    if(_metaItem) _metaItem.value = element
-                })
-            }
-            items.value = list
-            unwatch() // run just once!
-        })
-
-        watch(items, (list) => {
-            const data = []
-            list.forEach(metaItem => {
-                if(metaItem.deleted) return
-                if(metaItem.isExisting) {
-                    data.push(metaItem.relationID) // use the same relation ID since nothing changed
-                }
-                else {
-                    let payload = {[foreign_key]: metaItem.value}
-                    data.push(payload)
-                }
-            })
-            context.emit('update:modelValue', data)
-
-        }, {
-            deep:true
-        })
-
-        const currentIDs = computed(() => {
-            const _ids = []
-            items.value.forEach(item => {
-                const id = item?.value?.id
-                if(id) _ids.push(id)
-            })
-            return _ids
-        })
-
-        
-
-        const query = ref('')
-        const results = ref([])
-
-        // data for creating new items
-        const newItemFields = ref({})
-        const newItem = ref({})
-        
-        /**
-         * fetch a list of items matching specific IDs 
-         */
-        async function getById(id) {
-            // make a request filtering by id
-            const item = await directus.items(relation).readOne(id)
-            return item
-        }
-        async function fetchIDs(ids=[]) {
-            if(ids.length==0) return
-            // make a request filtering by id
-            const response = await directus.items(relation).readByQuery({
-                filter: {
-                    id: {
-                        _in: ids
-                    }
-                },
-                limit: -1
-            })
-            const {data=[]} = response
-            return data
-        }
-        async function search() {
-            const text = query.value
-            const params = { limit: -1 } // default params
-            params.filter = filter(text) // apply filter if a query is set
-            const existingIDs = currentIDs.value
-            if(existingIDs.length>0) {
-                params.filter.id = {
-                    _nin: currentIDs.value 
-                }
-            }
-            const response = await directus.items(relation).readByQuery(params)
-            const {data=[]} = response
-            results.value = data
-        }
-        async function addExisting() {
-            const _ids = selectedIDs.value
-            if(_ids.length===0) return
-            const data = await fetchIDs(_ids)
-            data.forEach(element => {
-                const metaItem = new MetaItem(element.id)
-                metaItem.value = element
-                items.value.push(metaItem)
-            })
-        }
-        function addNew() {
-            // todo: get data directly from the form in the creation drawer
-            const data = newItem.value
-            if(!data) return
-            const metaItem = new MetaItem()
-            metaItem.value = data
-            items.value.push(metaItem)
-        }
-        /**
-         * search and remove one of the possible items as available in the modelValue:
-         * number, object with ID, and object without ID
-         * @param {Object} itemToRemove 
-         */
-        function remove(item) {
-            item.deleted = true // mark the metaitem as deleted
-        }
-        function restore(item) {
-            item.deleted = false // mark the metaitem as deleted
-        }
-        /**
-         * remove the item from both
-         * the ids (triggering the v-model update)
-         * and from the items
-         * @param {Object} itemToRemove 
-         */
-        function onRemoveClicked(item) { remove(item)}
-        function onRestoreClicked(item) { restore(item) }
-        async function onCreateNewClicked() {
-            newItemFields.value = field.value.fields() // reset
-            const response = await createDrawer.value.show()
-            if(response===false) return
-            else addNew()
-        }
-        async function onAddExistingClicked() {
-            selectedIDs.value = [] // reset ids
-            query.value = '' // reset query
-            await search()
-            const response = await selectDrawer.value.show()
-            if(response===false) return
-            else addExisting()
-
-        }
-        function onSearchClicked() { search() }
-
-        const test = ref({})
-
-        // init() // fetch associated items
-        return {
-            newItem,
-            selectedIDs,
-            newItemFields,
-            items, query, results, preview,
-            createDrawer, selectDrawer,createItemForm, // refs
-            onRemoveClicked, onRestoreClicked,
-            onCreateNewClicked, onAddExistingClicked, onSearchClicked,
-        }
-    },
-    emits: [ 'update:modelValue' ], // v-model
-    props: {
-        modelValue: { type: [Array,Object], default: () => ([]) }, // v-model
-        field: { type: FormField, default: null },
-    },
-}
 </script>
 
 <style scoped>

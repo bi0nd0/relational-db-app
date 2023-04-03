@@ -3,16 +3,29 @@ import {
     CheckboxField,
     SelectField,
     ManyToManyField,
+    ManyToOneField,
     RadioField,
 } from '../models'
 import Divider from '../models/Divider'
-import autore from './autore'
+import {autore, museo } from '.'
 
 export default {
     collection: 'opera',
     fields() {
         return [
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
+            new ManyToOneField({
+                name: 'museo',
+                label: 'Museo', type: 'manyToOne', value: [],
+                related: 'museo',
+                foreign_key: 'museo',
+                preview: (item) => { return `${item?.id ?? '--'} - ${item?.nome}` },
+                fields: museo.fields,
+                filter: (text) => {
+                    if(text.trim()==='') return {}
+                    return { nome: { _contains: text } }
+                },
+            }),
             new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
             new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),
             new FormField({ name: 'nctn', label: 'nctn', type: 'text', value: '' }),
@@ -23,7 +36,7 @@ export default {
             new ManyToManyField({
                 name: 'autore',
                 label: 'autore', type: 'manyToMany', value: [],
-                relation: 'autore',
+                related: 'autore',
                 foreign_key: 'autore_id',
                 preview: (item) => { return `${item?.id ?? '--'} - ${item?.autn}` },
                 fields: autore.fields,
@@ -74,6 +87,7 @@ export default {
             {key:'lc',label:'Localizzazione',sortable: false},
             {key:'materials',label:'Materiali',sortable: false},
             {key:'color',label:'Colore',sortable: true},
+            {key:'museo',label:'Museo',sortable: true},
             {key:'autore',label:'Autore',sortable: false},
             // {key:'ambito',label:'Ambito',sortable: false},
             {key:'visible',label:'Visibile',sortable: false},

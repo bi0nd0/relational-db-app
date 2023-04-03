@@ -11,7 +11,7 @@ export default {
             new ManyToManyField({
                 name: 'autm',
                 label: 'autm', type: 'manyToMany', value: [],
-                relation: 'autm',
+                related: 'autm',
                 foreign_key: 'autm_id',
                 preview: (item) => { return `${item.id} - ${item.tipo}` },
                 fields: autm.fields,
