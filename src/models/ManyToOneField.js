@@ -6,10 +6,9 @@ import FormField from "./FormField"
  * there are many cities in a country, but a city can only be in one country.
  */
 export default class extends FormField {
-    
+    type = 'manyToOne'
     // relational data
     related = null// name of related collection
-    foreign_key = null// field with the ID off the related collection
     preview = {} // for relational data
     fields = [] // list of fields of related collection
     filter = () => ({})// for searching
@@ -17,7 +16,6 @@ export default class extends FormField {
     constructor(params) {
         super(params)
         if(params?.related) this.related = params.related
-        if(params?.foreign_key) this.foreign_key = params.foreign_key
         if(params?.preview) this.preview = params.preview
         if(params?.fields) this.fields = params.fields
         if(params?.filter) this.filter = params.filter

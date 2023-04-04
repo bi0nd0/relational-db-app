@@ -18,88 +18,77 @@
     </Form>
 </template>
 
-<script>
+<script setup>
 import { ref, watch, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
 import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
 
-export default {
-    components: { Form },
-    setup(props, context) {
+const props = defineProps({
+    collection: { type: String, default: '' },
+    id: { type: String, default: null }, // this prop is coming from the router
+})
 
-        const route = useRoute()
-        const router = useRouter()
+const route = useRoute()
+const router = useRouter()
 
-        const collection = ref('')
-        const fields = ref([])
-        const item = ref({})
-        
-        const {id} = toRefs(props)
-        
-        // watch the route and update data based on the collection param
-        watch(route, () => {
-            // infer the collection from the route
-            collection.value = route.params?.collection
-            if(!collection.value) return
-            // retrieve the settings
-            const itemSettings = settings[collection.value]
-            // define the subset of fields you need to view in the table
-            const collectionFields = itemSettings.fields()
-            fields.value = collectionFields
-            fetchData()
-        }, {immediate: true, deep: true})
+const collection = ref('')
+const fields = ref([])
+const item = ref({})
 
-        watch(item, (item) => {
-            fields.value.forEach(field => {
-                field.value = item?.[field.name]
-            });
-        },{immediate: true,})
+const {id} = toRefs(props)
 
-        async function fetchData() {
-            try {
-                const response = await directus.items(collection.value).readOne(id.value, {
-                    fields: '*.*',
-                })
-                item.value = response
-            } catch (error) {
-                console.log(error)
-            }
-        }
-        function onCancelClicked() {
-            const confirmed = confirm('Are you sure you want to leave this page?')
-            if(!confirmed) return
-            goToList()
-        }
-        function onSaveClicked(form) {
-            save(form)
-        }
-        function goToList() {
-            router.push({name: 'listItems', params: { collection: collection.value }})
-        }
-        async function save(data) {
-            try {
-                const response = await directus.items(collection.value).updateOne(id.value, data)
-                // console.log(response)
-                alert('saved successfully')
-                goToList()
-            } catch (error) {
-                console.error(error)
-                alert(error)
-            }
-        }
+// watch the route and update data based on the collection param
+watch(route, () => {
+    // infer the collection from the route
+    collection.value = route.params?.collection
+    if(!collection.value) return
+    // retrieve the settings
+    const itemSettings = settings[collection.value]
+    // define the subset of fields you need to view in the table
+    const collectionFields = itemSettings.fields()
+    fields.value = collectionFields
+    fetchData()
+}, {immediate: true, deep: true})
 
+watch(item, (item) => {
+    fields.value.forEach(field => {
+        field.value = item?.[field.name]
+    });
+},{immediate: true,})
 
-        return {
-            fields,item,
-            onCancelClicked,onSaveClicked,
-        }
-    },
-    props: {
-        collection: { type: String, default: '' },
-        id: { type: String, default: null }, // this prop is coming from the router
-    },
+async function fetchData() {
+    try {
+        const response = await directus.items(collection.value).readOne(id.value, {
+            fields: '*.*',
+        })
+        item.value = response
+    } catch (error) {
+        console.log(error)
+    }
+}
+function onCancelClicked() {
+    const confirmed = confirm('Are you sure you want to leave this page?')
+    if(!confirmed) return
+    goToList()
+}
+function onSaveClicked(form) {
+    save(form)
+}
+function goToList() {
+    router.push({name: 'listItems', params: { collection: collection.value }})
+}
+async function save(data) {
+    try {
+        const response = await directus.items(collection.value).updateOne(id.value, data)
+        // console.log(response)
+        alert('saved successfully')
+        goToList()
+    } catch (error) {
+        console.error(error)
+        alert(error)
+    }
 }
 </script>
 

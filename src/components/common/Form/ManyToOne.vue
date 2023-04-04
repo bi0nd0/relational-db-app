@@ -3,8 +3,6 @@
         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     </slot>
     
-
-    {{ item }}
     <template v-if="item">
         <div class="item d-flex p-2">
             <div class="preview">
@@ -124,10 +122,9 @@ import {directus} from '@/API/'
 
 const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
 
-
 const emit = defineEmits([ 'update:modelValue' ])
 const props = defineProps({
-    modelValue: { type: [Object], default: () => ({}) }, // v-model
+    modelValue: { type: [Object, Number], default: null }, // v-model
     field: { type: FormField, default: null },
 })
 

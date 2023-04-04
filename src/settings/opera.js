@@ -15,10 +15,8 @@ export default {
         return [
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
             new ManyToOneField({
-                name: 'museo',
-                label: 'Museo', type: 'manyToOne', value: [],
+                name: 'museo', label: 'Museo', value: null,
                 related: 'museo',
-                foreign_key: 'museo',
                 preview: (item) => { return `${item?.id ?? '--'} - ${item?.nome}` },
                 fields: museo.fields,
                 filter: (text) => {
@@ -35,7 +33,7 @@ export default {
             new Divider({ type: 'divider' }),
             new ManyToManyField({
                 name: 'autore',
-                label: 'autore', type: 'manyToMany', value: [],
+                label: 'autore', value: [],
                 related: 'autore',
                 foreign_key: 'autore_id',
                 preview: (item) => { return `${item?.id ?? '--'} - ${item?.autn}` },
@@ -45,11 +43,11 @@ export default {
                     return { autn: { _contains: text } }
                 },
             }),
-            new SelectField({ name: 'type', label: 'type', type: 'select', value: '', options: [
+            new SelectField({ name: 'type', label: 'type', value: '', options: [
                 { value: 'dipinto', label: 'Dipinto'},
                 { value: 'statua', label: 'Statua'},
             ] }),
-            new CheckboxField({ name: 'materials', label: 'Materiali', type: 'checkbox', value: [],
+            new CheckboxField({ name: 'materials', label: 'Materiali', value: [],
                 inline: false,
                 options: [
                     { value: 'pietra', label: 'Pietra'},

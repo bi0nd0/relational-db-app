@@ -10,7 +10,7 @@ export default {
             new FormField({ name: 'auta', label: 'auta', type: 'text', value: '' }),
             new ManyToManyField({
                 name: 'autm',
-                label: 'autm', type: 'manyToMany', value: [],
+                label: 'autm', value: [],
                 related: 'autm',
                 foreign_key: 'autm_id',
                 preview: (item) => { return `${item.id} - ${item.tipo}` },

@@ -33,6 +33,7 @@ export default {
       </router-link></li>
       <li class="nav-item"><router-link class="nav-link" :to="{name:'listItems',params:{collection:'opera'}}">Opere</router-link></li>
       <li class="nav-item"><router-link class="nav-link" :to="{name:'listItems',params:{collection:'autore'}}">Autori</router-link></li>
+      <li class="nav-item"><router-link class="nav-link" :to="{name:'listItems',params:{collection:'museo'}}">Museo</router-link></li>
       <li class="nav-item"><router-link class="nav-link" :to="{name:'notes'}">Notes</router-link></li>
     </ul>
 

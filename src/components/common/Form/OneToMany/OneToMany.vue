@@ -45,11 +45,12 @@
 
     </div>
 
+    <!-- {{ newItem }} -->
+    <!-- {{ items }} -->
     <Drawer ref="createDrawer">
         <template v-slot:header>
             <span>Create item</span>
         </template>
-        <!-- {{ newItem }} -->
 
         <MyForm :fields="newItemFields" v-model="newItem">
         </MyForm>
@@ -96,7 +97,7 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent } from 'vue'
 import {directus} from '@/API/'
-import { MetaItem } from '.'
+import { MetaItem } from '..'
 /**
  * A relation could be displayed as a number or an object;
  * the object contains an ID when updating and no ID when creating.
@@ -124,7 +125,7 @@ import { MetaItem } from '.'
 
 
 
-const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
+const MyForm = defineAsyncComponent(() => import('../Form.vue'))
 
 
 const emit = defineEmits([ 'update:modelValue' ])
@@ -146,7 +147,6 @@ const {
 
 
 const createDrawer = ref(null) // reference an item in the template
-const createItemForm = ref(null) // reference an item in the template
 
 const selectDrawer = ref(null) // reference an item in the template
 
@@ -159,10 +159,9 @@ const unwatch = watch(modelValue, async (value) => {
     const _ids = []
     let list = []
     for (let item of value) {
-        const relationID = item.id
         const itemID = item[foreign_key]
 
-        const metaItem = new MetaItem(itemID, relationID)
+        const metaItem = new MetaItem(itemID)
         _ids.push(itemID)
         list.push(metaItem)
     }
@@ -185,10 +184,10 @@ watch(items, (list) => {
     list.forEach(metaItem => {
         if(metaItem.deleted) return
         if(metaItem.isExisting) {
-            data.push(metaItem.relationID) // use the same relation ID since nothing changed
+            data.push(metaItem.itemID) // use the same relation ID since nothing changed
         }
         else {
-            let payload = {[foreign_key]: metaItem.value}
+            let payload = {...metaItem.value}
             data.push(payload)
         }
     })
@@ -216,14 +215,6 @@ const results = ref([])
 const newItemFields = ref({})
 const newItem = ref({})
 
-/**
- * fetch a list of items matching specific IDs 
- */
-async function getById(id) {
-    // make a request filtering by id
-    const item = await directus.items(related).readOne(id)
-    return item
-}
 async function fetchIDs(ids=[]) {
     if(ids.length==0) return
     // make a request filtering by id
@@ -307,18 +298,6 @@ async function onAddExistingClicked() {
 function onSearchClicked() { search() }
 
 const test = ref({})
-
-// init() // fetch associated items
-/* return {
-    newItem,
-    selectedIDs,
-    newItemFields,
-    items, query, results, preview,
-    createDrawer, selectDrawer,createItemForm, // refs
-    onRemoveClicked, onRestoreClicked,
-    onCreateNewClicked, onAddExistingClicked, onSearchClicked,
-} */
-
 
 
 </script>

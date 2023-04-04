@@ -10,7 +10,10 @@
                     <template v-if="field.type=='manyToMany'">
                         <ManyToMany v-model="field.value" :field="field" />
                     </template>
-                    <template v-if="field.type=='manyToOne'">
+                    <template v-else-if="field.type=='oneToMany'">
+                        <OneToMany v-model="field.value" :field="field" />
+                    </template>
+                    <template v-else-if="field.type=='manyToOne'">
                         <ManyToOne v-model="field.value" :field="field" />
                     </template>
                     <template v-else-if="field.type=='checkbox'">
@@ -51,6 +54,7 @@
 import { toRefs, computed } from 'vue'
 import {
     ManyToMany,
+    OneToMany,
     ManyToOne,
     Toggle,
     Checkbox,
