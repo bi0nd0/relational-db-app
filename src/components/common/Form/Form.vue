@@ -4,7 +4,6 @@
 
     <div>
         <template v-for="(field, index) in fields" :key="index">
-            
             <div class="mb-3">
                 <slot :name="`field-${field.name}`" :data="data" :fields="fields" :field="field">
                     <template v-if="field.type=='manyToMany'">

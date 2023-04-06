@@ -32,8 +32,6 @@
 </template>
 
 <script>
-
-
     import Modal from './Modal'
     // override the default for disableOutsideClick using the visitor function
     const propsVisitor = (props) => props.disableOutsideClick.default = true

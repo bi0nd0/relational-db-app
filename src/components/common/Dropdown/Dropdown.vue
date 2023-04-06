@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, toRefs, computed, onMounted, defineProps } from 'vue'
+import { ref, toRefs, computed, onMounted } from 'vue'
 import {Dropdown} from 'bootstrap'
 
 const dropDownElement = ref(null)

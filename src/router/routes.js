@@ -2,6 +2,7 @@ import MainLayout from '../layouts/MainLayout.vue'
 import Home from '../pages/Home.vue'
 import Notes from '../pages/Notes.vue'
 import PageNotFound from '../pages/PageNotFound.vue'
+import Upload from '../pages/Upload.vue'
 
 // autori
 import Autori from '../pages/Autori.vue'
@@ -37,6 +38,7 @@ const routes = [
         ],props: true, meta: { requiresAuth: true } },
         { path: '/login',  name: 'login', component: Login },
         { path: '/logout',  name: 'logout', component: Logout },
+        { path: '/upload',  name: 'upload', component: Upload },
         /* { path: '/test/:username',  name: 'test', component: Test },
         { path: '/opera/:id',  name: 'opera', component: Opera },
         { path: '/opere',  name: 'opere', components: {

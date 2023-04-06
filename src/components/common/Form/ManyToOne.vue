@@ -2,7 +2,6 @@
     <slot name="label">
         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     </slot>
-    
     <template v-if="item">
         <div class="item d-flex p-2">
             <div class="preview">
@@ -153,7 +152,7 @@ const unwatch = watch(modelValue, async (_item) => {
     const element = await getById(_item.id)
     // assign the MetaItem to the `item` reference
     item.value = element
-    unwatch() // run just once!
+    // unwatch() // run just once!
 })
 /**
  * send the updated ID to the form

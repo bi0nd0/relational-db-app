@@ -2,7 +2,7 @@
     <slot name="label">
         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     </slot>
-    
+    {{ modelValue }}
     <div class="card">
         <div class="card-body items d-flex flex-column gap-2">
             <template v-for="(item, index) in items" :key="index">
@@ -10,23 +10,23 @@
                     <div class="preview">
                         <!-- run the preview function if available -->
                         <template v-if="typeof preview == 'function'">
-                            {{ preview(item.value) }}
+                            {{ preview(item) }}
                         </template>
                         <!-- show the id otherwise -->
                         <template v-else>
-                            <span>{{ item.value.id }}</span>
+                            <span>{{ item.id }}</span>
                         </template>
                     </div>
-                    <template v-if="item.deleted">
+                    <!-- <template v-if="item.deleted">
                         <button class="btn btn-sm btn-info ms-auto" @click="onRestoreClicked(item)">
                             <font-awesome-icon icon="fa-solid fa-rotate-left" fixed-width/>
                         </button>
-                    </template>
-                    <template v-else>
+                    </template> -->
+                    <!-- <template v-else> -->
                         <button class="btn btn-sm btn-danger ms-auto" @click="onRemoveClicked(item)">
                             <font-awesome-icon icon="fa-solid fa-trash" fixed-width/>
                         </button>
-                    </template>
+                    <!-- </template> -->
                 </div>
                 <slot :item="item"></slot>
             </template>
@@ -96,7 +96,6 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent } from 'vue'
 import {directus} from '@/API/'
-import { MetaItem } from '.'
 /**
  * A relation could be displayed as a number or an object;
  * the object contains an ID when updating and no ID when creating.
@@ -151,59 +150,56 @@ const selectedIDs = ref([])
  * observe the model (list of ids) once.
  * for each item, make a list of IDs and create MetaItems
  */
-const unwatch = watch(modelValue, async (value) => {
+const unwatch = watch(modelValue, async (value, prevValue) => {
+    if(!modelValue) return
     const _ids = []
     let list = []
     for (let item of value) {
-        const relationID = item.id
         const itemID = item[foreign_key]
-
-        const metaItem = new MetaItem(itemID, relationID)
-        _ids.push(itemID)
-        list.push(metaItem)
+        if(itemID) _ids.push(itemID)
     }
     if(_ids.length>0) {
         // if we have ids (selected items) then fetch and assign data
-        const data = await fetchIDs(_ids)
-        data.forEach(element => {
-            const id = element?.id
-            const _metaItem = list.find(item => item.itemID===id)
-            // set the value of each MetaItem created earlier
-            if(_metaItem) _metaItem.value = element
+        const _data = await fetchIDs(_ids)
+        _data.forEach(element => {
+            list.push(element)
         })
     }
     items.value = list
-    unwatch() // run just once!
-})
+    // unwatch() // run just once!
+}, {immediate: false})
 
-watch(items, (list) => {
-    const data = []
-    list.forEach(metaItem => {
-        if(metaItem.deleted) return
-        if(metaItem.isExisting) {
-            data.push(metaItem.relationID) // use the same relation ID since nothing changed
+
+const data = computed( () => {
+    const _data = []
+    items.value.forEach(element => {
+        // if(metaItem.deleted) return
+        const relationID = getRelationID(element)
+        if(relationID) {
+            _data.push(relationID) // use the same relation ID since nothing changed
         }
         else {
-            let payload = {[foreign_key]: metaItem.value}
-            data.push(payload)
+            let payload = {[foreign_key]: element}
+            _data.push(payload)
         }
     })
-    emit('update:modelValue', data)
+    return _data
+} )
 
-}, {
-    deep:true
-})
+// check if an element is related to the parent
+function getRelationID(element) {
+    const found = modelValue.value.find( _field => field.id === element.id )
+    return found?.relationID
+}
 
 const currentIDs = computed(() => {
     const _ids = []
     items.value.forEach(item => {
-        const id = item?.value?.id
+        const id = item?.id
         if(id) _ids.push(id)
     })
     return _ids
 })
-
-
 
 const query = ref('')
 const results = ref([])
@@ -223,8 +219,8 @@ async function fetchIDs(ids=[]) {
         },
         limit: -1
     })
-    const {data=[]} = response
-    return data
+    const {data:_data=[]} = response
+    return _data
 }
 async function search() {
     const text = query.value
@@ -237,26 +233,24 @@ async function search() {
         }
     }
     const response = await directus.items(related).readByQuery(params)
-    const {data=[]} = response
-    results.value = data
+    const {data:_data=[]} = response
+    results.value = _data
 }
 async function addExisting() {
     const _ids = selectedIDs.value
     if(_ids.length===0) return
-    const data = await fetchIDs(_ids)
-    data.forEach(element => {
-        const metaItem = new MetaItem(element.id)
-        metaItem.value = element
-        items.value.push(metaItem)
+    const _data = await fetchIDs(_ids)
+    _data.forEach(element => {
+        items.value.push(element)
     })
+    emit('update:modelValue', data.value)
 }
 function addNew() {
     // todo: get data directly from the form in the creation drawer
-    const data = newItem.value
-    if(!data) return
-    const metaItem = new MetaItem()
-    metaItem.value = data
-    items.value.push(metaItem)
+    const _data = newItem.value
+    if(!_data) return
+    items.value.push(_data)
+    emit('update:modelValue', data.value)
 }
 /**
  * search and remove one of the possible items as available in the modelValue:
@@ -264,11 +258,15 @@ function addNew() {
  * @param {Object} itemToRemove 
  */
 function remove(item) {
-    item.deleted = true // mark the metaitem as deleted
+    const index = items.value.indexOf(item)
+    if(index<0) return
+    items.value.splice(index, 1)
+    emit('update:modelValue', data.value)
 }
-function restore(item) {
+/* function restore(item) {
     item.deleted = false // mark the metaitem as deleted
-}
+    emit('update:modelValue', data.value)
+} */
 /**
  * remove the item from both
  * the ids (triggering the v-model update)

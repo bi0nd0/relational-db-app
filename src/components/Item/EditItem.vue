@@ -65,7 +65,8 @@ async function fetchData() {
         })
         item.value = response
     } catch (error) {
-        console.log(error)
+        if(error?.message) alert(error.message)
+
     }
 }
 function onCancelClicked() {
