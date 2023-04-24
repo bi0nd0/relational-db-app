@@ -5,6 +5,8 @@ import {
     ManyToManyField,
     ManyToOneField,
     RadioField,
+    File,
+    Image,
 } from '../models'
 import Divider from '../models/Divider'
 import {autore, museo } from '.'
@@ -14,6 +16,8 @@ export default {
     fields() {
         return [
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
+            new File({ name: 'attachment', label: 'Attachment' }),
+            new Image({ name: 'thumbnail', label: 'Thumbnail', fit: 'contain', width: 300, height: 300, quality: 80 }),
             new ManyToOneField({
                 name: 'museo', label: 'Museo', value: null,
                 related: 'museo',

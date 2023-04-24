@@ -1,17 +1,23 @@
 <template>
 
-    <label for="file-upload" class="custom-file-upload">
+    <label for="file-upload" class="custom-file-upload" >
       <font-awesome-icon icon="fa-upload" fixed-width/>
     </label>
-    <input ref="fileInput" id="file-upload" type="file" multiple @change="onFileChanged"/>
+    <input ref="fileInput" id="file-upload" type="file" :multiple="multiple" @change="onFileChanged" />
     
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
+
+const props = defineProps({
+  disabled: { type: Boolean, default: false}
+})
+
+// get the injected multiple
+const multiple = inject('multiple', false);
 
 const emit = defineEmits(['files-selected'])
-
 const fileInput = ref()
 
 function onFileChanged(event) {

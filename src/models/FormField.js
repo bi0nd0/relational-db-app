@@ -9,14 +9,14 @@ export default class {
     __initialValue = null // save initial value
     __value = null// value that can be updated
     __dirty = false // mark the field as dirty if modified
-    
 
+    __ready = false
 
     constructor(params) {
         if(params?.name) this.name = params.name
         if(params?.label) this.label = params.label
         if(params?.type) this.type = params.type
-        this.__initialValue = this.__value = params?.value ?? this.#getDefaultValueByType(this.type)
+        this.__initialValue = this.__value = params?.value ?? null
     }
 
     get value() { return this.__value }

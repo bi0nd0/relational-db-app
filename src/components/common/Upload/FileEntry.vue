@@ -1,24 +1,20 @@
 <template>
 <div class="d-flex flex-row gap-2 border border-light border-2 rounded p-2">
     <!-- <a href="#" :download="file.filename_download" @click.prevent="onDownloadClicked"></a> -->
-        <template v-if="isImage">
-            <img :src="thumbnail" />
+        <template v-if="isImage(file)">
+            <img :src="thumbnail(file, imageOptions)" />
         </template>
         <template v-else>
             <font-awesome-icon icon="fa-file" fixed-width :style="{height: `${imageOptions.height}px`, width: `${imageOptions.width}px`}"/>
         </template>
     <div class="d-flex flex-column">
-        <span class="d-block mb-auto">{{file.title}}</span>
-        <span class="d-block text-muted small">Uploaded: {{file.uploaded_on}}</span>
-        <span class="d-block text-muted small">Size: {{file.filesize}}</span>
-        <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary" @click="onDownloadClicked">
-                <font-awesome-icon icon="fa-download" fixed-width/>
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" @click="onRemoveFileClicked">
-                <font-awesome-icon icon="fa-trash" fixed-width/>
-            </button>
-        </div>
+        <FileMetadata :file="file" />
+        <FileActions :file="file" 
+            @downloadAsset="onDownloadClicked"
+            @showAsset="onShowAssetClicked"
+            @deleteAsset="onDeleteFileClicked"
+        />
+
     </div>
 
 </div>
@@ -27,6 +23,13 @@
 <script setup>
 import { ref, computed, toRefs } from 'vue';
 import { accessToken, baseURL } from '../../../API';
+import { useAsset } from '../../../utils';
+import FileMetadata from './FileMetadata.vue';
+import FileActions from './FileActions.vue';
+
+const {isImage, url, thumbnail} = useAsset(baseURL,accessToken)
+
+
 
 const emit = defineEmits(['file-removed'])
 
@@ -43,17 +46,14 @@ const imageOptions = ref({
     quality: 80,
 })
 
-const isImage = computed( () => file.value?.type.match(/^image/i) )
-const url = computed( () => `${baseURL}/assets/${file.value.id}?download=&access_token=${accessToken}` )
-const thumbnail = computed( () => {
-    const {fit, width, height, quality} = imageOptions.value
-    let thumbnail = url.value + `&fit=${fit}&width=${width}&height=${height}&quality=${quality}`
-    return thumbnail
-} )
-
-function onRemoveFileClicked() { emit('file-removed', file.value) }
+function onDeleteFileClicked() { emit('file-removed', file.value) }
+function onShowAssetClicked() {
+    let showUrl = url(file.value, false)
+    var win = window.open(showUrl, '_blank')
+    win.focus()
+}
 function onDownloadClicked() {
-    let downloadUrl = url.value
+    let downloadUrl = url(file.value, true)
     location.href = downloadUrl
 }
 </script>

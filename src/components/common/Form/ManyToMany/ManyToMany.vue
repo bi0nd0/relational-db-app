@@ -2,7 +2,7 @@
     <slot name="label">
         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     </slot>
-    {{ modelValue }}
+
     <div class="card">
         <div class="card-body items d-flex flex-column gap-2">
             <template v-for="(item, index) in items" :key="index">
