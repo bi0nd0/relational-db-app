@@ -1,5 +1,4 @@
 import { Directus } from '@directus/sdk';
-import Authentication from './Authentication';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
 const accessToken = import.meta.env.VITE_DIRECTUS_STATIC_TOKEN
@@ -30,6 +29,6 @@ const client = (override={}) => {
 }
 
 const directus = client()
-const authentication = new Authentication(directus)
+// const authentication = new Authentication(directus)
 
-export {directus, authentication, accessToken, baseURL, client}
+export {directus, accessToken, baseURL, client}

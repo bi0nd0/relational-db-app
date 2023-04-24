@@ -22,39 +22,31 @@
     </main>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
-import {authentication} from '../API'
 import { useRouter, useRoute } from 'vue-router'
-
-export default {
-    setup(props, context) {
-
-        const router = useRouter()
-        const route = useRoute()
+import store from '../store'
+const userStore = store.user
 
 
-        const email = ref('')
-        const password = ref('')
+const router = useRouter()
+const route = useRoute()
 
-        async function login() {
-            const logged = await authentication.login(email.value, password.value)
 
-            if(!logged) {
-                alert('invalid credentials')
-                return
-            }
-            const {redirect} = route.query
-            if(redirect) router.push(redirect)
-            else router.push({name:'home'})
-        }
+const email = ref('')
+const password = ref('')
 
-        return {
-            email, password,
-            login,
-        }
+async function login() {
+    const logged = await userStore.login(email.value, password.value)
+    if(!logged) {
+        alert('invalid credentials')
+        return
     }
+    const {redirect} = route.query
+    if(redirect) router.push(redirect)
+    else router.push({name:'home'})
 }
+
 </script>
 
 <style scoped>

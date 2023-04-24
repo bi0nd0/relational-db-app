@@ -1,4 +1,5 @@
 <template>
+    <ItemsNavigation :collection="collection" :id="id"/>
     <h2>Edit item ID #{{ id }}</h2>
 
     <Form :fields="fields">
@@ -24,25 +25,24 @@ import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
 import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
+import ItemsNavigation from './ItemsNavigation.vue'
 
 const props = defineProps({
     collection: { type: String, default: '' },
     id: { type: String, default: null }, // this prop is coming from the router
 })
+const {id, collection} = toRefs(props)
 
 const route = useRoute()
 const router = useRouter()
 
-const collection = ref('')
+
 const fields = ref([])
 const item = ref({})
 
-const {id} = toRefs(props)
 
 // watch the route and update data based on the collection param
 watch(route, () => {
-    // infer the collection from the route
-    collection.value = route.params?.collection
     if(!collection.value) return
     // retrieve the settings
     const itemSettings = settings[collection.value]
