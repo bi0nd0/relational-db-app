@@ -1,5 +1,7 @@
 <template>
-    <ItemsNavigation :collection="collection" :id="id"/>
+    <div class="mb-2">
+        <ItemsNavigation :collection="collection" :id="id"/>
+    </div>
     <h2>Edit item ID #{{ id }}</h2>
 
     <Form :fields="fields">
@@ -26,6 +28,7 @@ import {directus} from '../../API'
 import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
 import ItemsNavigation from './ItemsNavigation.vue'
+import store from '../../store'
 
 const props = defineProps({
     collection: { type: String, default: '' },
@@ -42,33 +45,27 @@ const item = ref({})
 
 
 // watch the route and update data based on the collection param
-watch(route, () => {
+watch(route, async () => {
     if(!collection.value) return
     // retrieve the settings
     const itemSettings = settings[collection.value]
     // define the subset of fields you need to view in the table
     const collectionFields = itemSettings.fields()
     fields.value = collectionFields
-    fetchData()
+
+    // use an instant timeout to make sure the item will update
+    setTimeout(async () => {
+        item.value = await store.collections.getItem(collection.value, id.value)
+    }, 0);
 }, {immediate: true, deep: true})
 
-watch(item, (item) => {
+watch(item, (_item) => {
     fields.value.forEach(field => {
-        field.value = item?.[field.name]
+        field.value = _item?.[field.name]
     });
-},{immediate: true,})
+},{immediate: true, deep:true})
 
-async function fetchData() {
-    try {
-        const response = await directus.items(collection.value).readOne(id.value, {
-            fields: '*.*',
-        })
-        item.value = response
-    } catch (error) {
-        if(error?.message) alert(error.message)
 
-    }
-}
 function onCancelClicked() {
     const confirmed = confirm('Are you sure you want to leave this page?')
     if(!confirmed) return

@@ -48,8 +48,9 @@ const collection = ref('')
 const items = ref([])
 const fields = ref([])
 
+
 // watch the route and update data based on the collection param
-watch(route, () => {
+watch(route, async () => {
     collection.value = route.params?.collection
     if(!collection.value) return
     // retrieve the settings
@@ -57,7 +58,7 @@ watch(route, () => {
     // define the subset of fields you need to view in the table
     const collectionFields = itemSettings.tableFields()
     fields.value = collectionFields
-    fetchData()
+    items.value = await store.collections.getCollection(collection.value)
 }, {immediate: true, deep: true})
 
 const createLink = computed( ()=> ( { name: 'createItem', params: { collection:collection.value } } ) )
