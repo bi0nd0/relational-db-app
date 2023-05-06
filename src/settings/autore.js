@@ -13,7 +13,7 @@ export default {
                 label: 'autm', value: [],
                 related: 'autm',
                 foreign_key: 'autm_id',
-                preview: (item) => { return `${item.id} - ${item.tipo}` },
+                preview: (item) => { return `${item?.id ?? '--'} - ${item?.tipo}` },
                 fields: autm.fields,
                 filter: (text) => {
                     if(text.trim()==='') return {}
