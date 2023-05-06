@@ -55,7 +55,7 @@ watch(route, async () => {
 
     // use an instant timeout to make sure the item will update
     setTimeout(async () => {
-        item.value = await store.collections.getItem(collection.value, id.value)
+        item.value = await store.collections.getItem(collection.value, id.value, true)
     }, 0);
 }, {immediate: true, deep: true})
 

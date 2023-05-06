@@ -4,7 +4,7 @@
     </slot>
     <div class="card">
         <div class="card-body items d-flex flex-column gap-2">
-            <template v-for="(item, index) in items" :key="index">
+            <template v-for="(item, index) in items" :key="item.id">
                 <div class="item d-flex p-2">
                     <div class="preview">
                         <!-- run the preview function if available -->
@@ -155,7 +155,7 @@ const selectedIDs = ref([])
  */
 const unwatch = watch(modelValue, async (value) => {
     items.value = value
-})
+}, {immediate: true})
 
 const data = computed( () => {
     const _data = []
@@ -195,6 +195,8 @@ async function fetchIDs(ids=[]) {
     const {data:_data=[]} = response
     return _data
 }
+
+
 async function search() {
     const text = query.value
     const params = { limit: -1 } // default params
@@ -246,7 +248,6 @@ function remove(item) {
  * @param {Object} itemToRemove 
  */
 function onRemoveClicked(item) { remove(item)}
-function onRestoreClicked(item) { restore(item) }
 async function onCreateNewClicked() {
     newItemFields.value = field.value.fields() // reset
     const response = await createDrawer.value.show()

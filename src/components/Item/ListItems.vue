@@ -58,7 +58,7 @@ watch(route, async () => {
     // define the subset of fields you need to view in the table
     const collectionFields = itemSettings.tableFields()
     fields.value = collectionFields
-    items.value = await store.collections.getCollection(collection.value)
+    items.value = await store.collections.getCollection(collection.value, true)
 }, {immediate: true, deep: true})
 
 const createLink = computed( ()=> ( { name: 'createItem', params: { collection:collection.value } } ) )

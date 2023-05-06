@@ -22,6 +22,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
 import Form from '../common/Form/Form.vue'
 import * as settings from '../../settings/'
+import store from '../../store'
 
 
 export default {

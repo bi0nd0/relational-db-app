@@ -13,7 +13,7 @@ const store = reactive({
         this.items[collection][id] = data
     },
     async getCollection(collection, force=false) {
-        if(!(this.collections.has(collection))) {
+        if(force || !(this.collections.has(collection))) {
             return await this.fetchAll(collection)
         }
         const list = this.collections.get(collection)

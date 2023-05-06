@@ -140,30 +140,31 @@ const {
 
 const createDrawer = ref(null) // reference an item in the template
 const selectDrawer = ref(null) // reference an item in the template
-
 const selectedID = ref()
+
+
 /**
  * observe the model (relaetd model ID) once.
  * fetch data and create MetaItem
  */
 const unwatch = watch(modelValue, async (_item) => {
-    if(!_item?.id) return
+    if(!_item?.id) return item.value = null
     // fetch data of related item
     const element = await getById(_item.id)
     // assign the MetaItem to the `item` reference
     item.value = element
     // unwatch() // run just once!
-})
+}, {immediate: true})
 /**
  * send the updated ID to the form
  */
-watch(item, (_item) => {
-    let data = _item?.id ?? null
-    if(!data) data = { ..._item }
-    emit('update:modelValue', data)
-}, {
-    deep:true
-})
+// watch(item, (_item) => {
+//     let data = _item?.id ?? null
+//     if(!data) data = { ..._item }
+//     emit('update:modelValue', data)
+// }, {
+//     deep:true
+// })
 
 const query = ref('')
 const results = ref([])
@@ -198,14 +199,16 @@ async function search() {
 async function selectExisting() {
     const _id = selectedID.value
     if(!_id) return
-    const element = await getById(_id)
-    item.value = element
+    const data = await getById(_id)
+    item.value = data
+    emit('update:modelValue', data)
 }
 function addNew() {
     // todo: get data directly from the form in the creation drawer
     const data = newItem.value
     if(!data) return
     item.value = data
+    emit('update:modelValue', data)
 }
 /**
  * search and remove one of the possible items as available in the modelValue:
@@ -214,6 +217,7 @@ function addNew() {
  */
 function remove() {
     item.value = null // mark the metaitem as deleted
+    emit('update:modelValue', null)
 }
 
 /**

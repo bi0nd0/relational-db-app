@@ -16,25 +16,6 @@ export default {
     fields() {
         return [
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
-            new File({ name: 'attachment', label: 'Attachment' }),
-            new Image({ name: 'thumbnail', label: 'Thumbnail', fit: 'contain', width: 300, height: 300, quality: 80 }),
-            new ManyToOneField({
-                name: 'museo', label: 'Museo', value: null,
-                related: 'museo',
-                preview: (item) => { return `${item?.id ?? '--'} - ${item?.nome}` },
-                fields: museo.fields,
-                filter: (text) => {
-                    if(text.trim()==='') return {}
-                    return { nome: { _contains: text } }
-                },
-            }),
-            new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
-            new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),
-            new FormField({ name: 'nctn', label: 'nctn', type: 'text', value: '' }),
-            new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
-            new FormField({ name: 'ogtn', label: 'ogtn', type: 'text', value: '' }),
-            new FormField({ name: 'ogtp', label: 'ogtp', type: 'text', value: '' }),
-            new Divider({ type: 'divider' }),
             new ManyToManyField({
                 name: 'autore',
                 label: 'autore', value: [],
@@ -47,6 +28,25 @@ export default {
                     return { autn: { _contains: text } }
                 },
             }),
+            new ManyToOneField({
+                name: 'museo', label: 'Museo', value: null,
+                related: 'museo',
+                preview: (item) => { return `${item?.id ?? '--'} - ${item?.nome}` },
+                fields: museo.fields,
+                filter: (text) => {
+                    if(text.trim()==='') return {}
+                    return { nome: { _contains: text } }
+                },
+            }),
+            new File({ name: 'attachment', label: 'Attachment' }),
+            new Image({ name: 'thumbnail', label: 'Thumbnail', fit: 'contain', width: 300, height: 300, quality: 80 }),
+            new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
+            new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),
+            new FormField({ name: 'nctn', label: 'nctn', type: 'text', value: '' }),
+            new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
+            new FormField({ name: 'ogtn', label: 'ogtn', type: 'text', value: '' }),
+            new FormField({ name: 'ogtp', label: 'ogtp', type: 'text', value: '' }),
+            new Divider({ type: 'divider' }),
             new SelectField({ name: 'type', label: 'type', value: '', options: [
                 { value: 'dipinto', label: 'Dipinto'},
                 { value: 'statua', label: 'Statua'},

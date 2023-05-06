@@ -5,7 +5,7 @@
 
     <div class="card">
         <div class="card-body items d-flex flex-column gap-2">
-            <template v-for="(item, index) in items" :key="index">
+            <template v-for="(item, index) in items" :key="item.id">
                 <div class="item d-flex p-2">
                     <div class="preview">
                         <!-- run the preview function if available -->
@@ -209,7 +209,7 @@ const newItemFields = ref({})
 const newItem = ref({})
 
 async function fetchIDs(ids=[]) {
-    if(ids.length==0) return
+    if(ids.length==0) return []
     // make a request filtering by id
     const response = await directus.items(related).readByQuery({
         filter: {
