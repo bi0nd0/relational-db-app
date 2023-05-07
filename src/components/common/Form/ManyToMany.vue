@@ -145,21 +145,22 @@ const currentIDs = computed( () => {
 })
 const data = computed( () => {
     const _data = []
-    const relations = field.value.initialValue
+    
     // const initialIDs = relations.map(_relation => _relation?.[id])
     for (const item of items.value) {
-        const id = item?.id
-        if(!id) {
-            _data.push(item) // new item
-        }else {
-            const relation = relations.find(_relation => _relation?.[foreign_key]==id)
-            if(relation) _data.push(relation.id) // original relation
-            else _data.push(item) // new existing relation
-
-        }
+        const relationID = getRelationID(item)
+        if(relationID) _data.push(relationID) // existing relation
+        else _data.push({[foreign_key]:item}) // new item (existing or not)
     }
     return _data
 } )
+
+// check if an element is related to the parent
+function getRelationID(element) {
+    const relations = field.value.initialValue
+    const found = relations.find( _relation => _relation.id === element.id )
+    return found?.relationID
+}
 
 async function fetchIDs(ids=[]) {
     if(ids.length==0) return []
