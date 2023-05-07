@@ -16,6 +16,7 @@ export default class {
         if(params?.name) this.name = params.name
         if(params?.label) this.label = params.label
         if(params?.type) this.type = params.type
+        if(params?.value) this.__initialValue = this.__value = params.__value
     }
     
     async setInitialValue(value) { this.__initialValue = this.__value = value }
@@ -32,6 +33,8 @@ export default class {
     beforeSetValue(value) { return value }
 
     get dirty() { return this.__dirty }
+
+    serialize() { return this.value }
 
     #getDefaultValueByType(type) {
         let value

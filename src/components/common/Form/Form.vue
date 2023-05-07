@@ -74,14 +74,14 @@ import {
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
     fields: { type: Array, default: [] },
-    modelValue: { type: [Array,Object], default: [] },
+    // modelValue: { type: [Array,Object], default: [] },
 })
 
 const {fields} = toRefs(props)
 
 const data = () => {
     const onlyDirty = fields.value.filter(field => field.dirty===true)
-    const keyValuesList = onlyDirty.map(field => [field.name, field.value])
+    const keyValuesList = onlyDirty.map(field => [field.name, field.serialize()])
     const _data = Object.fromEntries(keyValuesList)
     // emit('update:modelValue', _data)
     return _data

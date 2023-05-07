@@ -4,7 +4,7 @@
     </div>
     <h2>Edit item ID #{{ id }}</h2>
 
-    <Form v-model="fields" :fields="fields">
+    <Form :fields="fields">
 
         <template v-slot:footer="{data, fields}">
             <div class="buttons">
@@ -53,9 +53,9 @@ watch(route, async () => {
     // use an instant timeout to make sure the item will update
     setTimeout(async () => {
         const data = await store.collections.getItem(collection.value, id.value, true)
-        collectionFields.forEach(field => {
-            field.setInitialValue(data?.[field.name])
-        });
+        for (const field of collectionFields) {
+            await field.setInitialValue(data?.[field.name])
+        }
         fields.value = collectionFields
     }, 0);
 }, {immediate: true, deep: true})
