@@ -123,7 +123,7 @@ import {directus} from '@/API/'
 
 
 
-const MyForm = defineAsyncComponent(() => import('../Form.vue'))
+const MyForm = defineAsyncComponent(() => import('./Form.vue'))
 
 
 const emit = defineEmits([ 'update:modelValue' ])

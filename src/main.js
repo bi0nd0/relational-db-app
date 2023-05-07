@@ -14,7 +14,7 @@ import Modal from './components/common/Modal/Modal.vue'
 const app = createApp(App)
 app.use(BootstrapVue)
 // register global components
-app.component('Modal', Modal)
+// app.component('Modal', Modal)
 app.component('Drawer', Drawer)
 
 /** --- Bootstrap --- */

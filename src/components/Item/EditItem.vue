@@ -4,9 +4,9 @@
     </div>
     <h2>Edit item ID #{{ id }}</h2>
 
-    <Form :fields="fields">
+    <Form v-model="fields" :fields="fields">
 
-        <template v-slot:footer="{data}">
+        <template v-slot:footer="{data, fields}">
             <div class="buttons">
                 <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
                     <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
@@ -40,9 +40,7 @@ const route = useRoute()
 const router = useRouter()
 
 
-const fields = ref([])
-const item = ref({})
-
+const fields = ref([]) // fields settings
 
 // watch the route and update data based on the collection param
 watch(route, async () => {
@@ -51,28 +49,25 @@ watch(route, async () => {
     const itemSettings = settings[collection.value]
     // define the subset of fields you need to view in the table
     const collectionFields = itemSettings.fields()
-    fields.value = collectionFields
 
     // use an instant timeout to make sure the item will update
     setTimeout(async () => {
-        item.value = await store.collections.getItem(collection.value, id.value, true)
+        const data = await store.collections.getItem(collection.value, id.value, true)
+        collectionFields.forEach(field => {
+            field.setInitialValue(data?.[field.name])
+        });
+        fields.value = collectionFields
     }, 0);
 }, {immediate: true, deep: true})
-
-watch(item, (_item) => {
-    fields.value.forEach(field => {
-        field.value = _item?.[field.name]
-    });
-},{immediate: true, deep:true})
-
 
 function onCancelClicked() {
     const confirmed = confirm('Are you sure you want to leave this page?')
     if(!confirmed) return
     goToList()
 }
-function onSaveClicked(form) {
-    save(form)
+function onSaveClicked(data) {
+    console.log(data, data())
+    save(data())
 }
 function goToList() {
     router.push({name: 'listItems', params: { collection: collection.value }})
