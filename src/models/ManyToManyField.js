@@ -33,9 +33,8 @@ export default class extends FormField {
             if(foreign_key in relation) _ids.push(relation[foreign_key])
 
         }
-        const _data = await this.fetchIDs(_ids)
-        this.__value = _data
-        // emit('update:modelValue', [..._data, ..._objects])
+        const data = await this.fetchIDs(_ids)
+        this.__value = data.map( item => ({[foreign_key]:item}) )
     }
     
     async fetchIDs(ids=[]) {
@@ -54,7 +53,11 @@ export default class extends FormField {
     }
 
 
-    serialize() {
+    /**
+     * transform to the format expected by the API
+     * @returns
+     */
+    ___serialize() {
         const foreign_key = this.foreign_key
         const serialized = []
         

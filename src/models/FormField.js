@@ -34,6 +34,10 @@ export default class {
 
     get dirty() { return this.__dirty }
 
+    /**
+     * 
+     * @returns the value as it is expected from the api
+     */
     serialize() { return this.value }
 
     #getDefaultValueByType(type) {

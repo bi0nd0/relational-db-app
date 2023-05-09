@@ -81,7 +81,7 @@ const {fields} = toRefs(props)
 
 const data = () => {
     const onlyDirty = fields.value.filter(field => field.dirty===true)
-    const keyValuesList = onlyDirty.map(field => [field.name, field.serialize()])
+    const keyValuesList = onlyDirty.map(field => [field.name, field.value])
     const _data = Object.fromEntries(keyValuesList)
     // emit('update:modelValue', _data)
     return _data

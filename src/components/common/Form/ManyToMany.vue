@@ -1,7 +1,11 @@
 <template>
-<div class="border rounded p-2">
+<slot name="label">
+    <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+</slot>
+
+<div class="border rounded p-2" :id="`field-${field.name}`">
     <div class="d-flex flex-column gap-2">
-        <template v-for="(item, index) in modelValue" :key="item">
+        <template v-for="(item, index) in items" :key="item">
             <div class="d-flex border rounded p-2">
                 <template v-if="(typeof preview == 'function')">
                     <div v-html="preview(item)"></div>
@@ -73,10 +77,19 @@ const { modelValue, field } = toRefs(props)
 // extract properties from the field settings
 const {related, foreign_key, preview, filter} = field.value
 
+const items = computed( () => {
+    return modelValue.value.map(item => toRaw(item?.[foreign_key]))
+})
 
-watch(modelValue, (_value) => {
-    emit('update:modelValue', _value)
-}, { immediate: true, deep: true })
+watch(items, (value) => {
+    // modelValue.value = value.map( item => ({[foreign_key]:item}) ) 
+    // emit('update:modelValue', value)
+}, { immediate: false, deep: true })
+
+function updateModelValue(_items=[]) {
+    const serialized = _items.map( item => ({[foreign_key]:item}) ) 
+    emit('update:modelValue', serialized)
+}
 
 /**
  * modelValue is the payload with the ids:
@@ -95,7 +108,7 @@ const query = ref('')
 
 const currentIDs = computed( () => {
     const _ids = []
-    for (const _item of modelValue.value) {
+    for (const _item of items.value) {
         if(_item?.id) _ids.push(_item.id)
     }
     return _ids
@@ -116,22 +129,26 @@ async function search() {
     existingItems.value = _data
 }
 async function addExisting() {
-    const _items = selected.value
-    if(_items.length===0) return
-    for (const _item of _items) {
-        modelValue.value.push(_item)
+    const _items = [...items.value]
+    const _selectedItems = selected.value
+    if(_selectedItems.length===0) return
+    for (const _item of _selectedItems) {
+        _items.push(_item)
     }
+    updateModelValue(_items)
 }
 
 function addNew() {
     const fields = newItemFields.value
     const _data = {}
+    const _items = [...items.value]
     
     for (const field of fields) {
         if(!field.dirty) continue
         _data[field.name] = field.value
     }
-    modelValue.value.push(_data)
+    _items.push(_data)
+    updateModelValue(_items)
 }
 
 /**
@@ -140,10 +157,11 @@ function addNew() {
  * @param {Object} itemToRemove 
  */
 function remove(itemToRemove) {
-    const index = modelValue.value.indexOf(itemToRemove)
+    const _items = [...items.value]
+    const index = _items.indexOf(itemToRemove)
     if(index<0) return
-    modelValue.value.splice(index, 1)
-    // emit('update:modelValue', toRaw(data))
+    _items.splice(index, 1)
+    updateModelValue(_items)
 }
 
 /**
@@ -152,7 +170,7 @@ function remove(itemToRemove) {
  * and from the items
  * @param {Object} itemToRemove 
  */
-function onRemoveClicked(item) { remove(toRaw(item)) }
+function onRemoveClicked(item) { remove(item) }
 
 async function onCreateNewClicked() {
     newItemFields.value = field.value.fields() // reset
