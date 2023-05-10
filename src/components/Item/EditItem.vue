@@ -66,7 +66,6 @@ function onCancelClicked() {
     goToList()
 }
 function onSaveClicked(data) {
-    console.log(data, data())
     save(data())
 }
 function goToList() {
@@ -75,7 +74,6 @@ function goToList() {
 async function save(data) {
     try {
         const response = await directus.items(collection.value).updateOne(id.value, data)
-        // console.log(response)
         alert('saved successfully')
         goToList()
     } catch (error) {
