@@ -81,11 +81,6 @@ const items = computed( () => {
     return modelValue.value.map(item => toRaw(item?.[foreign_key]))
 })
 
-watch(items, (value) => {
-    // modelValue.value = value.map( item => ({[foreign_key]:item}) ) 
-    // emit('update:modelValue', value)
-}, { immediate: false, deep: true })
-
 function updateModelValue(_items=[]) {
     const serialized = _items.map( item => ({[foreign_key]:item}) ) 
     emit('update:modelValue', serialized)

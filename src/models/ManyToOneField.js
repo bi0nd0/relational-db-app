@@ -1,4 +1,5 @@
 import FormField from "./FormField"
+import {directus} from '@/API/'
 
 /**
  * In an M2O relationship, multiple items from the parent collection
@@ -19,6 +20,23 @@ export default class extends FormField {
         if(params?.preview) this.preview = params.preview
         if(params?.fields) this.fields = params.fields
         if(params?.filter) this.filter = params.filter
+    }
+
+    async setInitialValue(value) {
+        const id = value?.id
+        if(!(id)) return null
+        // fetch data of related item
+        const data = await this.getById(id)
+        this.__value = data
+    }
+
+    /**
+     * fetch a list of items matching specific IDs 
+     */
+    async getById(id) {
+        // make a request filtering by id
+        const item = await directus.items(this.related).readOne(id)
+        return item
     }
 
 }

@@ -40,17 +40,17 @@
     </template>
 
 
-    <Drawer ref="createDrawer">
+    <b-modal ref="createNewRef">
         <template v-slot:header>
             <span>Create item</span>
         </template>
         <!-- {{ newItem }} -->
 
-        <MyForm :fields="newItemFields" v-model="newItem">
+        <MyForm :fields="newItemFields">
         </MyForm>
-    </Drawer>
+    </b-modal>
 
-    <Drawer ref="selectDrawer">
+    <b-modal ref="addExistingRef">
         <template v-slot:header>
             <span>Select item</span>
 
@@ -83,7 +83,7 @@
                 </div>
             </template>
         </div>
-    </Drawer>
+    </b-modal>
 
 </template>
 
@@ -91,33 +91,6 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent, reactive } from 'vue'
 import {directus} from '@/API/'
-
-/**
- * A relation could be displayed as a number or an object;
- * the object contains an ID when updating and no ID when creating.
- * 
- * @see https://docs.directus.io/reference/introduction.html#relational-data
- * 
- * - number: ID of the associated item
- * - object with no ID: newly created item; will be saved if associated
- * - object with ID: object that has been updated; will be updated when associated
- * 
- * example:
- *   [
- *    1,
- *    2,
- *    {
- *        name: 'john'
- *    },
- *    {
- *        id: 5,
- *        name: 'jane'
- *    },
- *    6
- *   ]
- */
-
-
 
 const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
 
@@ -128,7 +101,7 @@ const props = defineProps({
 })
 
 // const items = ref([]) // list selected items (numeric form)
-const item = ref() // related item
+// const item = ref() // related item
 const { modelValue, field } = toRefs(props)
 const {
     related, // name of the collection relation
@@ -138,45 +111,25 @@ const {
 } = field.value
 
 
-const createDrawer = ref(null) // reference an item in the template
-const selectDrawer = ref(null) // reference an item in the template
+const createNewRef = ref(null) // reference an item in the template
+const addExistingRef = ref(null) // reference an item in the template
 const selectedID = ref()
 
-
-/**
- * observe the model (relaetd model ID) once.
- * fetch data and create MetaItem
- */
-const unwatch = watch(modelValue, async (_item) => {
-    if(!_item?.id) return item.value = null
-    // fetch data of related item
-    const element = await getById(_item.id)
-    // assign the MetaItem to the `item` reference
-    item.value = element
-    // unwatch() // run just once!
-}, {immediate: true})
-/**
- * send the updated ID to the form
- */
-// watch(item, (_item) => {
-//     let data = _item?.id ?? null
-//     if(!data) data = { ..._item }
-//     emit('update:modelValue', data)
-// }, {
-//     deep:true
-// })
+const item = computed( () => {
+    return modelValue.value
+})
 
 const query = ref('')
 const results = ref([])
 
 // data for creating new items
-const newItemFields = ref({})
+const newItemFields = ref([])
 const newItem = ref({})
 
 /**
  * fetch a list of items matching specific IDs 
  */
-async function getById(id) {
+ async function getById(id) {
     // make a request filtering by id
     const item = await directus.items(related).readOne(id)
     return item
@@ -200,14 +153,14 @@ async function selectExisting() {
     const _id = selectedID.value
     if(!_id) return
     const data = await getById(_id)
-    item.value = data
+    // item.value = data
     emit('update:modelValue', data)
 }
 function addNew() {
     // todo: get data directly from the form in the creation drawer
     const data = newItem.value
     if(!data) return
-    item.value = data
+    // item.value = data
     emit('update:modelValue', data)
 }
 /**
@@ -216,7 +169,7 @@ function addNew() {
  * @param {Object} itemToRemove 
  */
 function remove() {
-    item.value = null // mark the metaitem as deleted
+    // item.value = null // mark the metaitem as deleted
     emit('update:modelValue', null)
 }
 
@@ -227,9 +180,10 @@ function remove() {
  * @param {Object} itemToRemove 
  */
 function onRemoveClicked(item) { remove()}
+
 async function onCreateNewClicked() {
     newItemFields.value = field.value.fields() // reset
-    const response = await createDrawer.value.show()
+    const response = await createNewRef.value.show()
     if(response===false) return
     else addNew()
 }
@@ -237,7 +191,7 @@ async function onSelectExistingClicked() {
     selectedID.value = null // reset id
     query.value = '' // reset query
     await search()
-    const response = await selectDrawer.value.show()
+    const response = await addExistingRef.value.show()
     if(response===false) return
     else selectExisting()
 
