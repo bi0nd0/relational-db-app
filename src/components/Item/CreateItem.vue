@@ -16,7 +16,7 @@
     
 </template>
 
-<script>
+<script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
@@ -24,60 +24,52 @@ import Form from '../common/Form/Form.vue'
 import * as settings from '../../settings/'
 import store from '../../store'
 
+const route = useRoute()
+const router = useRouter()
 
-export default {
-    components: { Form },
-    props: {
-        collection: { type: String, default: '' }
-    },
-    setup(props, context) {
-        const route = useRoute()
-        const router = useRouter()
-        
-        const collection = ref('')
-        const fields = ref([])
-        
-        // watch the route and update data based on the collection param
-        watch(route, () => {
-            // infer the collection from the route
-            collection.value = route.params?.collection
-            if(!collection.value) return
-            // retrieve the settings
-            const itemSettings = settings[collection.value]
-            // define the subset of fields you need to view in the table
-            const collectionFields = itemSettings.fields()
-            // define the subset of fields you need to view in the table
-            fields.value = collectionFields
-        }, {immediate: true, deep: true})
 
-        function onCancelClicked() {
-            const confirmed = confirm('Are you sure you want to leave this page?')
-            if(!confirmed) return
-            goToList()
-        }
-        function onSaveClicked(form) {
-            save(form)
-        }
-        function goToList() {
-            router.push({name: 'listItems', params: { collection: collection.value }})
-        }
-        async function save(data) {
-            try {
-                const response = await directus.items(collection.value).createOne(data)
-                alert('saved successfully')
-                goToList()
-            } catch (error) {
-                console.error(error)
-                alert(error)
-            }
-        }
-        return {
-            fields,
-            onCancelClicked,onSaveClicked,
-        }
-    },
-    
+const props = defineProps({
+    collection: { type: String, default: '' }
+})
+
+const collection = ref('')
+const fields = ref([])
+
+// watch the route and update data based on the collection param
+watch(route, () => {
+    // infer the collection from the route
+    collection.value = route.params?.collection
+    if(!collection.value) return
+    // retrieve the settings
+    const itemSettings = settings[collection.value]
+    // define the subset of fields you need to view in the table
+    const collectionFields = itemSettings.fields()
+    // define the subset of fields you need to view in the table
+    fields.value = collectionFields
+}, {immediate: true, deep: true})
+
+function onCancelClicked() {
+    const confirmed = confirm('Are you sure you want to leave this page?')
+    if(!confirmed) return
+    goToList()
 }
+function onSaveClicked(data) {
+    save(data())
+}
+function goToList() {
+    router.push({name: 'listItems', params: { collection: collection.value }})
+}
+async function save(data) {
+    try {
+        const response = await directus.items(collection.value).createOne(data)
+        alert('saved successfully')
+        goToList()
+    } catch (error) {
+        console.error(error)
+        alert(error)
+    }
+}
+
 </script>
 
 <style scoped>

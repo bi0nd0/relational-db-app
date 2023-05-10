@@ -1,1 +1,0 @@
-export { default as ManyToMany } from './ManyToMany.vue'

@@ -15,6 +15,7 @@ export default {
     collection: 'opera',
     fields() {
         return [
+            new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
             new ManyToManyField({
                 name: 'autore',
@@ -40,7 +41,7 @@ export default {
             }),
             new File({ name: 'attachment', label: 'Attachment' }),
             new Image({ name: 'thumbnail', label: 'Thumbnail', fit: 'contain', width: 300, height: 300, quality: 80 }),
-            new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
+            
             new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),
             new FormField({ name: 'nctn', label: 'nctn', type: 'text', value: '' }),
             new FormField({ name: 'nctr', label: 'nctr', type: 'text', value: '' }),
@@ -69,6 +70,7 @@ export default {
                 ]
             }),
             new FormField({ name: 'visible', label: 'visibile', type: 'toggle', value: true }),
+
             // new FormField({ name: 'lc', label: 'lc', type: 'text', defaultValue: null }),
             // new FormField({ name: 'date_created', label: 'date_created', type: 'text' }),
             // new FormField({ name: 'date_updated', label: 'date_updated', type: 'text' }),

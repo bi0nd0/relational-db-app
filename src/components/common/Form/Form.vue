@@ -40,8 +40,7 @@
                         <Divider />
                     </template>
                     <template v-else>
-                        <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
-                        <input :type="field.type" :id="`field-${field.name}`" class="form-control" v-model="field.value">
+                        <StandardInput v-model="field.value" :field="field"/>
                     </template>
                 </slot>
             </div>
@@ -69,23 +68,24 @@ import {
     File,
     Image,
     Divider,
+    StandardInput,
 } from '.'
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
     fields: { type: Array, default: [] },
-    modelValue: { type: [Array,Object], default: [] },
+    // modelValue: { type: [Array,Object], default: [] },
 })
 
 const {fields} = toRefs(props)
 
-const data = computed(() => {
+const data = () => {
     const onlyDirty = fields.value.filter(field => field.dirty===true)
     const keyValuesList = onlyDirty.map(field => [field.name, field.value])
     const _data = Object.fromEntries(keyValuesList)
-    emit('update:modelValue', _data)
+    // emit('update:modelValue', _data)
     return _data
-}) // form data (will be passed as prop in the slots)
+} // form data (will be passed as prop in the slots)
 
 </script>
 

@@ -1,1 +1,0 @@
-export { default as OneToMany } from './OneToMany.vue'

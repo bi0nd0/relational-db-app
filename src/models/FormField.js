@@ -16,16 +16,29 @@ export default class {
         if(params?.name) this.name = params.name
         if(params?.label) this.label = params.label
         if(params?.type) this.type = params.type
-        this.__initialValue = this.__value = params?.value ?? null
+        if(params?.value) this.__initialValue = this.__value = params.__value
     }
+    
+    async setInitialValue(value) { this.__initialValue = this.__value = value }
+    get initialValue() { return this.__initialValue }
 
     get value() { return this.__value }
     set value(value) {
+        value = this.beforeSetValue(value)
         this.__dirty = true
         this.__value = value
     }
 
+    // visitor applied to the value is set
+    beforeSetValue(value) { return value }
+
     get dirty() { return this.__dirty }
+
+    /**
+     * 
+     * @returns the value as it is expected from the api
+     */
+    serialize() { return this.value }
 
     #getDefaultValueByType(type) {
         let value
