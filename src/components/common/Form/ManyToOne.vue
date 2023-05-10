@@ -46,8 +46,7 @@
         </template>
         <!-- {{ newItem }} -->
 
-        <MyForm :fields="newItemFields">
-        </MyForm>
+        <MyForm :fields="newItemFields"></MyForm>
     </b-modal>
 
     <b-modal ref="addExistingRef">
@@ -157,11 +156,15 @@ async function selectExisting() {
     emit('update:modelValue', data)
 }
 function addNew() {
-    // todo: get data directly from the form in the creation drawer
-    const data = newItem.value
-    if(!data) return
+    const fields = newItemFields.value
+    const _data = {}
+    
+    for (const field of fields) {
+        if(!field.dirty) continue
+        _data[field.name] = field.value
+    }
     // item.value = data
-    emit('update:modelValue', data)
+    emit('update:modelValue', _data)
 }
 /**
  * search and remove one of the possible items as available in the modelValue:
