@@ -17,12 +17,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { inject, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API'
 import Form from '../common/Form/Form.vue'
 import * as settings from '../../settings/'
-import store from '../../store'
+
+const toaster = inject('$toaster')
+const modal = inject('$modalManager')
 
 const route = useRoute()
 const router = useRouter()
@@ -48,8 +50,8 @@ watch(route, () => {
     fields.value = collectionFields
 }, {immediate: true, deep: true})
 
-function onCancelClicked() {
-    const confirmed = confirm('Are you sure you want to leave this page?')
+async function onCancelClicked() {
+    const confirmed = await modal.confirm({title:'Confirm', body:'Are you sure you want to leave this page?'})
     if(!confirmed) return
     goToList()
 }
@@ -62,11 +64,11 @@ function goToList() {
 async function save(data) {
     try {
         const response = await directus.items(collection.value).createOne(data)
-        alert('saved successfully')
+        toaster.toast({title:'Success', body:'Data was saved successfully'}, 'top right')
         goToList()
     } catch (error) {
         console.error(error)
-        alert(error)
+        toaster.toast({title:'Error', body: error}, 'top right')
     }
 }
 

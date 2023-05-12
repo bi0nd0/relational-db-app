@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {directus} from '../../API/'
 import * as settings from '../../settings/'
@@ -47,6 +47,9 @@ const router = useRouter()
 const collection = ref('')
 const items = ref([])
 const fields = ref([])
+
+const toaster = inject('$toaster')
+const modal = inject('$modalManager')
 
 
 // watch the route and update data based on the collection param
@@ -77,8 +80,8 @@ async function deleteItem(item) {
 function onEditClicked(item) {
     router.push({name: 'editItem', params: { id: item.id, collection:collection.value }})
 }
-function onDeleteClicked(item) {
-    const confirmed = confirm('Are you sure you want to delete this item?')
+async function onDeleteClicked(item) {
+    const confirmed = await modal.confirm({title:'Confirm', body:'Are you sure you want to delete this item?'})
     if(confirmed) deleteItem(item)
 }
 
