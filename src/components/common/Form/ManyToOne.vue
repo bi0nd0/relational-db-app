@@ -50,20 +50,10 @@
     </b-modal>
 
     <b-modal ref="addExistingRef">
-        <template v-slot:header>
-            <span>Select item</span>
-
-            <div>
-                <div class="input-group">
-                    <input class="form-control" type="text" v-model.lazy="query" placeholder="3 characters min..."/>
-                    <button class="btn btn-sm btn-primary" @click="onSearchClicked">
-                        <font-awesome-icon icon="fa-solid fa-magnifying-glass" fixed-width/>
-                        <span class="ms-1">Search</span>
-                    </button>
-                </div>
-            </div>
-        </template>
+        <template v-slot:header><span>Select item</span></template>
         <div>
+            <SearchInput v-model="query" @search="onSearchClicked"></SearchInput>
+            <hr>
             <template v-for="(item, index) in results" :key="index">
                 <div class="card mt-2">
                     <div class="preview card-body">
@@ -90,6 +80,7 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent, reactive } from 'vue'
 import {directus} from '@/API/'
+import SearchInput from './SearchInput.vue';
 
 const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
 
@@ -134,10 +125,9 @@ const newItem = ref({})
     return item
 }
 
-async function search() {
-    const text = query.value
+async function search(query) {
     const params = { limit: -1 } // default params
-    params.filter = filter(text) // apply filter if a query is set
+    params.filter = filter(query) // apply filter if a query is set
     const id = item.value?.id
     if(id) {
         params.filter.id = {
@@ -193,13 +183,13 @@ async function onCreateNewClicked() {
 async function onSelectExistingClicked() {
     selectedID.value = null // reset id
     query.value = '' // reset query
-    await search()
+    await search('')
     const response = await addExistingRef.value.show()
     if(response===false) return
     else selectExisting()
 
 }
-function onSearchClicked() { search() }
+function onSearchClicked(query) { search(query) }
 
 
 </script>

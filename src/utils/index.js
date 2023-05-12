@@ -40,4 +40,18 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
-export {useAsset, formatBytes}
+/**
+* note that this must be called to set the scope of timers and return
+* the actual debounce logic
+*/
+const debounce = function(callback, delay=300) {
+    let timers = {}
+    return (...args) => {
+      if(timers[callback]) clearTimeout(timers[callback]);
+      timers[callback] = setTimeout(() => {
+        callback.apply(this, args)
+      }, delay);
+    }
+  }
+
+export {useAsset, formatBytes, debounce}

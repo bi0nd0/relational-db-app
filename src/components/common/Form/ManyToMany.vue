@@ -38,7 +38,8 @@
 <b-modal ref="addExistingRef">
     <template #header>Add existing</template>
     <div>
-        <div><input type="text" v-model="query" /></div>
+        <SearchInput v-model="query" @search="onSearch"></SearchInput>
+        <hr>
         <div>
             <template v-for="(item, index) in existingItems" :key="existingItems?.id ?? index">
                 <div class="d-flex">
@@ -65,6 +66,7 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, watch, defineAsyncComponent, toRaw, onMounted } from 'vue'
 import {directus} from '@/API/'
+import SearchInput from './SearchInput.vue';
 
 const MyForm = defineAsyncComponent(() => import('./Form.vue'))
 
@@ -109,10 +111,9 @@ const currentIDs = computed( () => {
     return _ids
 })
 
-async function search() {
-    const text = query.value
+async function search(query) {
     const params = { limit: -1 } // default params
-    params.filter = filter(text) // apply filter if a query is set
+    params.filter = filter(query) // apply filter if a query is set
     const existingIDs = currentIDs.value
     if(existingIDs.length>0) {
         params.filter.id = {
@@ -177,14 +178,14 @@ async function onCreateNewClicked() {
 async function onAddExistingClicked() {
     selected.value = [] // reset ids
     query.value = '' // reset query
-    await search()
+    await search('')
     const response = await addExistingRef.value.show()
     if(response===false) return
     else addExisting()
 
 }
 
-function onSearchClicked() { search() }
+function onSearch(value) { search(value) }
 
 </script>
 
