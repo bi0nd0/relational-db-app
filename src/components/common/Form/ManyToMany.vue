@@ -28,14 +28,14 @@
     </div>
 </div>
 
-<b-modal ref="createNewRef">
+<Drawer ref="createNewRef">
     <template #header>Create new</template>
     <div>
         <MyForm :fields="newItemFields" />
     </div>
-</b-modal>
+</Drawer>
 
-<b-modal ref="addExistingRef">
+<Drawer ref="addExistingRef">
     <template #header>Add existing</template>
     <div>
         <SearchInput v-model="query" @search="onSearch"></SearchInput>
@@ -43,22 +43,22 @@
         <div>
             <template v-for="(item, index) in existingItems" :key="existingItems?.id ?? index">
                 <div class="d-flex">
-                    <div class="me-2">
-                        <input type="checkbox" v-model="selected" :value="item" :id="`existing-${item.id}`"/>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" :id="`existing-${item.id}`" :value="item" v-model="selected">
+                        <label :for="`existing-${item.id}`">
+                            <template v-if="(typeof preview == 'function')">
+                                <span v-html="preview(item)"></span>
+                            </template>
+                            <template v-else>
+                                <span v-html="item?.id ?? '--'"></span>
+                            </template>
+                        </label>
                     </div>
-                    <label :for="`existing-${item.id}`">
-                        <template v-if="(typeof preview == 'function')">
-                            <span v-html="preview(item)"></span>
-                        </template>
-                        <template v-else>
-                            <span v-html="item?.id ?? '--'"></span>
-                        </template>
-                    </label>
                 </div>
             </template>
         </div>
     </div>
-</b-modal>
+</Drawer>
 
 </template>
 

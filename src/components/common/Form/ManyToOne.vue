@@ -40,16 +40,15 @@
     </template>
 
 
-    <b-modal ref="createNewRef">
+    <Drawer ref="createNewRef">
         <template v-slot:header>
             <span>Create item</span>
         </template>
-        <!-- {{ newItem }} -->
 
         <MyForm :fields="newItemFields"></MyForm>
-    </b-modal>
+    </Drawer>
 
-    <b-modal ref="addExistingRef">
+    <Drawer ref="addExistingRef">
         <template v-slot:header><span>Select item</span></template>
         <div>
             <SearchInput v-model="query" @search="onSearchClicked"></SearchInput>
@@ -57,7 +56,7 @@
             <template v-for="(item, index) in results" :key="index">
                 <div class="card mt-2">
                     <div class="preview card-body">
-                        <input class="form-check-radio" :id="`select-${item.id}`" type="radio" v-model="selectedID" :value="item.id"/>
+                        <input class="form-check-radio" :id="`select-${item.id}`" type="radio" v-model="selected" :value="item"/>
                         <!-- run the preview function if available -->
                         <label class="form-check-label ms-2" :for="`select-${item.id}`">
                             <template v-if="typeof preview == 'function'">
@@ -72,7 +71,7 @@
                 </div>
             </template>
         </div>
-    </b-modal>
+    </Drawer>
 
 </template>
 
@@ -103,7 +102,7 @@ const {
 
 const createNewRef = ref(null) // reference an item in the template
 const addExistingRef = ref(null) // reference an item in the template
-const selectedID = ref()
+const selected = ref()
 
 const item = computed( () => {
     return modelValue.value
@@ -114,16 +113,6 @@ const results = ref([])
 
 // data for creating new items
 const newItemFields = ref([])
-const newItem = ref({})
-
-/**
- * fetch a list of items matching specific IDs 
- */
- async function getById(id) {
-    // make a request filtering by id
-    const item = await directus.items(related).readOne(id)
-    return item
-}
 
 async function search(query) {
     const params = { limit: -1 } // default params
@@ -139,11 +128,10 @@ async function search(query) {
     results.value = data
 }
 async function selectExisting() {
-    const _id = selectedID.value
-    if(!_id) return
-    const data = await getById(_id)
+    const _item = selected.value
+    if(!_item) return
     // item.value = data
-    emit('update:modelValue', data)
+    emit('update:modelValue', _item)
 }
 function addNew() {
     const fields = newItemFields.value
@@ -181,7 +169,7 @@ async function onCreateNewClicked() {
     else addNew()
 }
 async function onSelectExistingClicked() {
-    selectedID.value = null // reset id
+    selected.value = null // reset id
     query.value = '' // reset query
     await search('')
     const response = await addExistingRef.value.show()

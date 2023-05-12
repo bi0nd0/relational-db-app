@@ -9,7 +9,6 @@ import 'bootstrap-vue/dist/style.css'
 
 // global components
 import Drawer from './components/common/Modal/Drawer.vue'
-import Modal from './components/common/Modal/Modal.vue'
 
 const app = createApp(App)
 app.use(BootstrapVue)
