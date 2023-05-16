@@ -57,7 +57,7 @@ export default class extends FormField {
      * transform to the format expected by the API
      * @returns
      */
-    ___serialize() {
+    /* ___serialize() {
         const foreign_key = this.foreign_key
         const serialized = []
         
@@ -68,13 +68,13 @@ export default class extends FormField {
             else serialized.push({[foreign_key]:item}) // new item (existing or not)
         }
         return serialized
-    }
+    } */
     
     // check if an element is related to the parent
-    getRelationID(element) {
+    /* getRelationID(element) {
         const relations = this.initialValue ?? []
         const found = relations.find( _relation => _relation.id === element.id )
         return found?.relationID
-    }
+    } */
 
 }

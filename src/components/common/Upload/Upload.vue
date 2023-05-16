@@ -21,13 +21,6 @@
   </div>
 </template>
 
-<script>
-const useUpload = () => {
-  return files
-}
-export {useUpload}
-</script>
-
 <script setup>
 import { inject, ref, watch } from 'vue';
 import { client } from '@/API'

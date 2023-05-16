@@ -36,6 +36,9 @@
                     <template v-else-if="field.type=='image'">
                         <Image v-model="field.value" :field="field"/>
                     </template>
+                    <template v-else-if="field.type=='files'">
+                        <Files v-model="field.value" :field="field"/>
+                    </template>
                     <template v-else-if="field.type=='divider'">
                         <Divider />
                     </template>
@@ -66,6 +69,7 @@ import {
     SelectSimple,
     Radio,
     File,
+    Files,
     Image,
     Divider,
     StandardInput,

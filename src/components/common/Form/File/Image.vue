@@ -1,6 +1,9 @@
 <template>
     <template v-if="asset?.id">
-        <div class="d-flex flex-row align-items-end">
+        <slot name="label">
+            <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+        </slot>
+        <div :id="`field-${field.name}`" class="d-flex flex-row align-items-end">
             
             <div class="me-2">
                 <img :src="thumbnail(asset, imageOptions)" />
@@ -24,7 +27,7 @@
 </template>
 
 <script setup>
-import { toRefs, computed, provide } from 'vue'
+import { toRefs, computed, provide, inject } from 'vue'
 import { Image as ImageModel } from '../../../../models';
 import { useAsset } from '../../../../utils';
 import { accessToken, baseURL } from '../../../../API';
@@ -34,6 +37,7 @@ import FileActions from '../../Upload/FileActions.vue';
 
 const {isImage, url, thumbnail} = useAsset(baseURL,accessToken)
 
+const modal = inject('$modalManager')
 provide('multiple', false) // this will be injected in ChooseFilesButton
 
 const emit = defineEmits(['update:modelValue'])
@@ -52,8 +56,8 @@ function deleteAsset() {
     emit('update:modelValue', null)
 }
 
-function onDeleteFileClicked(_file) {
-    const confirmed = confirm('Are you shure you want to delete this item?')
+async function onDeleteFileClicked(_file) {
+    const confirmed = await modal.confirm({title:'Confirm', body:'Are you shure you want to delete this item?'})
     if(!confirmed) return
     deleteAsset()
 }
