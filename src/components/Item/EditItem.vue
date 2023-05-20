@@ -55,7 +55,7 @@ watch(route, async () => {
 
     // use an instant timeout to make sure the item will update
     setTimeout(async () => {
-        const data = await store.collections.getItem(collection.value, id.value, true)
+        const data = await store.collections.fetchOne(collection.value, id.value, true)
         for (const field of collectionFields) {
             await field.setInitialValue(data?.[field.name])
         }

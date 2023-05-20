@@ -7,8 +7,7 @@
     </div>
     <b-modal ref="myModal" title="Select a file" ok-only size="lg">
         <div class="d-flex flex-column gap-2">
-            
-            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.count"/>
+            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
             
             <div class="border rounded p-2">
                 <template v-for="(file, index) in files" :key="file?.id">
@@ -29,7 +28,7 @@
                 </template>
             </div>
 
-            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.count"/>
+            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
         </div>
     </b-modal>
 </template>
@@ -56,8 +55,9 @@ const height = 80
 const imageOptions = {width, height, fit:'contain', quality:80 }
 
 watch(page, async (_page) => {
-    metadata.value = await getMetadata()
-    files.value = await getData(_page)
+    const response = await getData(_page)
+    metadata.value = response.meta
+    files.value = response.data
 
 }, {immediate: true})
 
@@ -68,17 +68,18 @@ async function onSelectClicked() {
     emit('filesSelected', _files)
 }
 
-async function getMetadata() {
+/* async function getMetadata() {
     const response = await directus.items('directus_files').readByQuery({aggregate:{count:'*'}})
     const metadata = response?.data?.[0]
     return metadata
-}
+} */
 async function getData(_page) {
     const response = await directus.items('directus_files').readByQuery({
         limit: limit.value,
-        page: _page
+        page: _page,
+        meta:'*'
     })
-    return response.data
+    return response
 }
 
 </script>

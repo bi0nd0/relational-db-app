@@ -1,14 +1,21 @@
 <template>
-    <header class="mb-2">
+    <header class="mb-2 d-flex">
         <router-link :to="createLink" custom v-slot="{ isActive, href, navigate }">
             <button class="btn btn-sm btn-primary" @click="navigate">
                 <font-awesome-icon icon="fa-solid fa-plus" fixed-width/>
                 <span class="ms-1">New</span>
             </button>
         </router-link>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <template v-if="loading">
+                <font-awesome-icon icon="fa-solid fa-spinner" spin fixed-width/>
+            </template>
+            <b-pagination v-if="totalPages>1" v-model="page" :perPage="limit" :totalItems="totalItems"/>
+        </div>
     </header>
 
-    <Table class="w-100" :items="items" :fields="fields">
+
+    <Table class="w-100 my-2" :items="items" :fields="fields">
 
         <!-- dynamically assigna labels to each thead -->
         <!-- <template v-for="(field, index) in fields" :key="index" #[`head(${field.key})`] >
@@ -27,15 +34,27 @@
         </template>
     </Table>
 
+    
+    <div class="ms-auto">
+        <b-pagination v-if="totalPages>1" v-model="page" :perPage="limit" :totalItems="totalItems"/>
+    </div>
+
 </template>
 
 <script setup>
 import { ref, computed, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {directus} from '../../API/'
 import * as settings from '../../settings/'
 import Table from '../common/Table/Table.vue'
 import store from '../../store'
+
+const loading = ref(false)
+
+// pagination
+const page = ref(1)
+const limit = ref(25)
+const totalItems = computed( () => metadata.value?.filter_count )
+const totalPages = computed( () => Math.ceil(metadata.value?.filter_count/limit.value) )
 
 const props = defineProps({
     collection: { type: String, default: '' },
@@ -46,6 +65,7 @@ const router = useRouter()
 // infer the collection from the route
 const collection = ref('')
 const items = ref([])
+const metadata = ref({total_count:0, filter_count:0})
 const fields = ref([])
 
 const toaster = inject('$toaster')
@@ -61,20 +81,35 @@ watch(route, async () => {
     // define the subset of fields you need to view in the table
     const collectionFields = itemSettings.tableFields()
     fields.value = collectionFields
-    items.value = await store.collections.getCollection(collection.value, true)
+    if(page.value != 1) page.value = 1
+    else fetchData()
 }, {immediate: true, deep: true})
+
+watch(page, async (_page) => {
+    fetchData()
+}, {immediate: true})
 
 const createLink = computed( ()=> ( { name: 'createItem', params: { collection:collection.value } } ) )
 
 async function fetchData() {
-    const response = await directus.items(collection.value).readByQuery({limit: -1})
-    const {data=[]} = response
-    items.value = data
-    store.collections.setCollection(collection.value, data)
+    try {
+        loading.value = true
+        const response = await store.collections.fetchAll(collection.value, page.value, limit.value)
+        const {data=[], meta={total_count:0, filter_counf:0}} = response
+        items.value = data
+        metadata.value = meta
+    } catch (error) {
+        console.log(error)
+    } finally {
+        loading.value = false
+    }
 }
 async function deleteItem(item) {
     const {id} = item
-    await directus.items(collection.value).deleteOne(id)
+    await store.collections.deleteOne(collection.value, id)
+    if(items.value.length<=1) {
+        if(page.value>1) page.value = page.value-1 // go to previous page if no more elements
+    }
     fetchData()
 }
 function onEditClicked(item) {

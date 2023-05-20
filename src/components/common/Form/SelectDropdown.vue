@@ -4,22 +4,20 @@
             <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
         </slot>
 
-        <Dropdown variant="primary" size="sm" v-bind="{...$attrs}">
+        <b-dropdown variant="primary" size="sm" v-bind="{...$attrs}">
             <template #button>
                 {{buttonText}}
             </template>
             <template v-for="(option, index) in field.options" :key="index">
-                <DropdownItem @click="selected = option.value">{{ option.label ?? option.value }}</DropdownItem>
+                <b-dropdown-item @click="selected = option.value">{{ option.label ?? option.value }}</b-dropdown-item>
             </template>
-        </Dropdown>
+        </b-dropdown>
     </div>
 </template>
 
 <script setup>
 import { ref, toRefs, computed } from 'vue'
 import SelectField from '../../../models/SelectField'
-import Dropdown from '../Dropdown/Dropdown.vue'
-import DropdownItem from '../Dropdown/DropdownItem.vue';
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({

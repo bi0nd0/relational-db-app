@@ -92,13 +92,11 @@ function onShowAssetClicked(_file) {
     var win = window.open(showUrl, '_blank')
     win.focus()
 }
+
 function onDownloadClicked(_file) {
     let downloadUrl = url(_file.value, true)
     location.href = downloadUrl
 }
-
-function onAddExistingClicked() {}
-
 
 function onFilesSelected(_files) {
     if(!_files || _files?.length===0) return

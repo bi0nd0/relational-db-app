@@ -21,6 +21,8 @@
 import { useRoute, useRouter } from 'vue-router'
 import store from '../../store'
 import { ref, toRefs, computed, watch } from 'vue';
+import { directus } from '../../API'
+
 const collectionsStore = store.collections
 
 const props = defineProps({
@@ -34,9 +36,10 @@ const router = useRouter()
 const list = ref([])
 
 watch(collection, async() => {
-
     if(collection.value==null) list.value = []
-    list.value = await collectionsStore.getCollection(collection.value)
+    const response = await collectionsStore.getIDs(collection.value)
+    const {data, meta} = response
+    list.value = data
 }, {immediate: true})
 
 
