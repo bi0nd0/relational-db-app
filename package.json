@@ -19,7 +19,7 @@
     "axios": "^1.3.2",
     "bootstrap": "^5.2.3",
     "bootstrap-vue": "https://github.com/bi0nd0/bootstrap-vue.git",
-    "vue": "^3.2.45",
+    "vue": "^3.3.0",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
