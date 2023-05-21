@@ -23,14 +23,13 @@
                 </div>
             </div>
         </template>
-        <div class="d-flex gap-2 mt-2">    
+        <div class="d-flex gap-2 mt-2">
             <UploadModal @filesSelected="onFilesSelected">
                 <template #button-text>Upload files</template>
             </UploadModal>
-            <AssetsModal @filesSelected="onFilesSelected">
+            <AssetsModal @filesSelected="onFilesSelected" multiple>
                 <template #button-text>Select existing</template>
             </AssetsModal>
-            <!-- <button class="btn btn-primary btn-sm" @click="onAddExistingClicked">select existing</button> -->
         </div>
     </div>
 
@@ -52,7 +51,7 @@ const {isImage, url, thumbnail} = useAsset(baseURL,accessToken)
 
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
-    modelValue: { type: Object, default: () => ({}) },
+    modelValue: { type: Object, default: () => ([]) },
     field: { type: Files, default: null },
 })
 
@@ -65,6 +64,7 @@ const imageOptions = computed( () => {
 } )
 
 const items = computed( () => {
+    if(!Array.isArray(files.value)) return []
     return files.value.map(item => toRaw(item?.[foreign_key]))
 })
 

@@ -1,8 +1,8 @@
 <template>
+    <slot name="label">
+        <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+    </slot>
     <template v-if="asset?.id">
-        <slot name="label">
-            <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
-        </slot>
         <div :id="`field-${field.name}`" class="d-flex flex-row align-items-end">
             
             <div class="me-2">
@@ -20,18 +20,24 @@
         </div>
     </template>
     <template v-else>
-        <UploadModal @filesSelected="onFilesSelected">
-            <template #button-text>Upload Image</template>
-        </UploadModal>
+        <div class="d-flex gap-2 mt-2">
+            <UploadModal @filesSelected="onFilesSelected">
+                <template #button-text>Upload Image</template>
+            </UploadModal>
+            <AssetsModal @filesSelected="onFilesSelected" :filter="filesFilter">
+                <template #button-text>Select existing</template>
+            </AssetsModal>
+        </div>
     </template>
 </template>
 
 <script setup>
-import { toRefs, computed, provide, inject } from 'vue'
+import { ref, toRefs, computed, provide, inject } from 'vue'
 import { Image as ImageModel } from '../../../../models';
 import { useAsset } from '../../../../utils';
 import { accessToken, baseURL } from '../../../../API';
 import UploadModal from './UploadModal.vue';
+import AssetsModal from './AssetsModal.vue';
 import FileMetadata from '../../Upload/FileMetadata.vue';
 import FileActions from '../../Upload/FileActions.vue';
 
@@ -51,6 +57,8 @@ const imageOptions = computed( () => {
     const { fit, width , height, quality } = field.value
     return { fit, width , height, quality }
 } )
+
+const filesFilter = ref({type: {_starts_with: 'image'}})
 
 function deleteAsset() {
     emit('update:modelValue', null)

@@ -16,7 +16,7 @@ export default class {
         if(params?.name) this.name = params.name
         if(params?.label) this.label = params.label
         if(params?.type) this.type = params.type
-        if(params?.value) this.__initialValue = this.__value = params.__value
+        if(params?.value) this.__initialValue = this.__value = params.value
     }
     
     async setInitialValue(value) { this.__initialValue = this.__value = value }

@@ -42,7 +42,7 @@ export default {
             }),
             new File({ name: 'attachment', label: 'Attachment' }),
             new Image({ name: 'thumbnail', label: 'Thumbnail', fit: 'contain', width: 100, height: 100, quality: 80 }),
-            new Files({ name: 'files', label: 'Files', foreign_key:'directus_files_id',
+            new Files({ name: 'files', label: 'Files', foreign_key:'directus_files_id', value:[],
                     fit: 'contain', width: 100, height: 100, quality: 80 }),
             
             new FormField({ name: 'lir', label: 'lir', type: 'text', value: '' }),

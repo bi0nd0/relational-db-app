@@ -1,8 +1,8 @@
 <template>
+    <slot name="label">
+        <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
+    </slot>
     <div v-if="modelValue?.id">
-        <slot name="label">
-            <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
-        </slot>
         <div :id="`field-${field.name}`" class="d-flex flex-row align-items-end">
             <div class="me-2">
                 <template v-if="isImage(asset)">
@@ -23,9 +23,14 @@
         </div>
     </div>
     <template v-else>
-        <UploadModal @filesSelected="onFilesSelected">
-            <template #button-text>Upload file</template>
-        </UploadModal>
+        <div class="d-flex gap-2 mt-2">
+            <UploadModal @filesSelected="onFilesSelected">
+                <template #button-text>Upload file</template>
+            </UploadModal>
+            <AssetsModal @filesSelected="onFilesSelected">
+                <template #button-text>Select existing</template>
+            </AssetsModal>
+        </div>
     </template>
 </template>
 
@@ -35,6 +40,7 @@ import { File } from '../../../../models'
 import { useAsset } from '../../../../utils'
 import { accessToken, baseURL } from '../../../../API'
 import UploadModal from './UploadModal.vue'
+import AssetsModal from './AssetsModal.vue'
 import FileMetadata from '../../Upload/FileMetadata.vue';
 import FileActions from '../../Upload/FileActions.vue';
 

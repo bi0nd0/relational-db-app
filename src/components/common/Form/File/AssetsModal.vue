@@ -5,15 +5,24 @@
             <span class="ms-1"><slot name="button-text">Select</slot></span>
         </button>
     </div>
+    
     <b-modal ref="myModal" title="Select a file" ok-only size="lg">
         <div class="d-flex flex-column gap-2">
-            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
+            <div class="d-flex gap-2">
+                <SelectPageSize v-model="limit" />
+                <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
+            </div>
             
             <div class="border rounded p-2">
                 <template v-for="(file, index) in files" :key="file?.id">
                     <div class="form-check">
-                        <input class="form-check-input"  :id="`file-${file.id}`" type="checkbox" v-model="selected" :value="file">
-                        <label class="form-check-label" :for="`file-${file.id}`">
+                        <template v-if="multiple">
+                            <input class="form-check-input"  :id="`input-file-${index}`" type="checkbox" v-model="selected" :value="file">
+                        </template>
+                        <template v-else>
+                            <input class="form-check-input"  :id="`input-file-${index}`" type="radio" v-model="selected" :value="file">
+                        </template>
+                        <label class="form-check-label" :for="`input-file-${index}`">
                             <div class="d-flex gap-2 align-items-end">
                                 <template v-if="isImage(file)">
                                     <img :src="thumbnail(file, imageOptions)" />
@@ -34,14 +43,21 @@
 </template>
 
 <script setup>
-import { toRaw, ref, watch } from 'vue';
+import { toRaw, ref, watch, watchEffect, toRefs } from 'vue';
 import { directus } from '@/API'
 import { useAsset } from '../../../../utils';
 import { accessToken, baseURL } from '../../../../API';
 import FileMetadata from '../../Upload/FileMetadata.vue';
+import SelectPageSize from '../../SelectPageSize.vue';
 
 const {isImage, url, thumbnail} = useAsset(baseURL,accessToken)
 
+const props = defineProps({
+    multiple: { type: Boolean, default: false },
+    filter: { type: [Function, Object], default: () => {} }
+})
+
+const {multiple,filter} = toRefs(props)
 
 const emit = defineEmits(['filesSelected'])
 const page = ref(1)
@@ -64,8 +80,13 @@ watch(page, async (_page) => {
 async function onSelectClicked() {
     const result = await myModal.value.show()
     if(!result) return // ok was not clicked; exit
-    const _files = selected.value.map(_file => toRaw(_file))
-    emit('filesSelected', _files)
+    let selection = []
+    if(multiple.value===true ) {
+        selection = selected.value.map(_file => toRaw(_file))
+    }else if(multiple.value===false) {
+        selection = [toRaw(selected.value)] // always return an array
+    }
+    emit('filesSelected', selection)
 }
 
 /* async function getMetadata() {
@@ -77,7 +98,8 @@ async function getData(_page) {
     const response = await directus.items('directus_files').readByQuery({
         limit: limit.value,
         page: _page,
-        meta:'*'
+        meta:'*',
+        filter: filter.value
     })
     return response
 }
