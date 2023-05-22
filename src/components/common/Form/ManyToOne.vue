@@ -34,7 +34,7 @@
             </button>
             <button class="btn btn-sm btn-primary" @click="onSelectExistingClicked">
                 <font-awesome-icon icon="fa-solid fa-list" fixed-width/>
-                <span class="ms-1">Add Existing</span>
+                <span class="ms-1">Select Existing</span>
             </button>
         </div>
     </template>
@@ -50,36 +50,31 @@
 
     <Drawer ref="addExistingRef">
         <template v-slot:header><span>Select item</span></template>
-        <div>
-            <SearchInput v-model="query" @search="onSearchClicked"></SearchInput>
-            <hr>
-            <template v-for="(item, index) in results" :key="index">
+        <SelectExisting :collection="related" :useQuery="useQuery" v-slot="{items}">
+            <template v-for="(item, index) in items" :key="index">
                 <div class="card mt-2">
                     <div class="preview card-body">
                         <input class="form-check-radio" :id="`select-${item.id}`" type="radio" v-model="selected" :value="item"/>
-                        <!-- run the preview function if available -->
                         <label class="form-check-label ms-2" :for="`select-${item.id}`">
                             <template v-if="typeof preview == 'function'">
-                                {{ preview(item) }}
+                                <span v-html="preview(item)"></span>
                             </template>
-                            <!-- show the id otherwise -->
                             <template v-else>
-                                <span>{{ item.id }}</span>
+                                <span v-html="item?.id ?? '--'"></span>
                             </template>
                         </label>
                     </div>
                 </div>
             </template>
-        </div>
+        </SelectExisting>
     </Drawer>
 
 </template>
 
 <script setup>
 import FormField from '@/models/FormField'
-import { ref, toRefs, computed, watch, defineAsyncComponent, reactive } from 'vue'
-import {directus} from '@/API/'
-import SearchInput from './SearchInput.vue';
+import { ref, toRefs, computed, defineAsyncComponent, reactive } from 'vue'
+import SelectExisting from './SelectExisting.vue';
 
 const MyForm = defineAsyncComponent(() => import('../Form/Form.vue'))
 
@@ -108,25 +103,21 @@ const item = computed( () => {
     return modelValue.value
 })
 
-const query = ref('')
-const results = ref([])
-
 // data for creating new items
 const newItemFields = ref([])
 
-async function search(query) {
-    const params = { limit: -1 } // default params
+const useQuery = (query) => {
+    const params = {}
     params.filter = filter(query) // apply filter if a query is set
-    const id = item.value?.id
-    if(id) {
+    const existingID = item.value?.id
+    if(existingID) {
         params.filter.id = {
-            _nin: [id]
+            _nin: [existingID] 
         }
     }
-    const response = await directus.items(related).readByQuery(params)
-    const {data=[]} = response
-    results.value = data
+    return params
 }
+
 async function selectExisting() {
     const _item = selected.value
     if(!_item) return
@@ -170,14 +161,11 @@ async function onCreateNewClicked() {
 }
 async function onSelectExistingClicked() {
     selected.value = null // reset id
-    query.value = '' // reset query
-    await search('')
     const response = await addExistingRef.value.show()
     if(response===false) return
     else selectExisting()
 
 }
-function onSearchClicked(query) { search(query) }
 
 
 </script>

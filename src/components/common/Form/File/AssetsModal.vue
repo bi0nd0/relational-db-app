@@ -6,15 +6,11 @@
         </button>
     </div>
     
-    <b-modal ref="myModal" title="Select a file" ok-only size="lg">
-        <div class="d-flex flex-column gap-2">
-            <div class="d-flex gap-2">
-                <SelectPageSize v-model="limit" />
-                <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
-            </div>
-            
+    <Drawer ref="myModal">
+        <template v-slot:header><span>Select a file</span></template>
+        <SelectExisting :collection="'directus_files'" :useQuery="useQuery" v-slot="{items}">
             <div class="border rounded p-2">
-                <template v-for="(file, index) in files" :key="file?.id">
+                <template v-for="(file, index) in items" :key="file?.id">
                     <div class="form-check">
                         <template v-if="multiple">
                             <input class="form-check-input"  :id="`input-file-${index}`" type="checkbox" v-model="selected" :value="file">
@@ -36,46 +32,60 @@
                     </div>
                 </template>
             </div>
+        </SelectExisting>
 
-            <b-pagination v-model="page" :perPage="limit" :totalItems="metadata?.filter_count"/>
-        </div>
-    </b-modal>
+    </Drawer>
 </template>
 
 <script setup>
-import { toRaw, ref, watch, watchEffect, toRefs } from 'vue';
-import { directus } from '@/API'
+import { toRaw, ref, watch, toRefs } from 'vue';
 import { useAsset } from '../../../../utils';
 import { accessToken, baseURL } from '../../../../API';
 import FileMetadata from '../../Upload/FileMetadata.vue';
-import SelectPageSize from '../../SelectPageSize.vue';
+
+import SelectExisting from '../SelectExisting.vue';
 
 const {isImage, url, thumbnail} = useAsset(baseURL,accessToken)
 
 const props = defineProps({
     multiple: { type: Boolean, default: false },
-    filter: { type: [Function, Object], default: () => {} }
+    filter: { type: [Function, Object], default: () => {} },
+    files: { type: Array, default: () => [] },
 })
 
-const {multiple,filter} = toRefs(props)
+const {multiple} = toRefs(props)
 
 const emit = defineEmits(['filesSelected'])
-const page = ref(1)
-const limit = ref(25)
-const metadata = ref({})
-const files = ref([])
 const myModal = ref()
 const selected = ref([])
-const width = 80
-const height = 80
+const width = 60
+const height = 60
 const imageOptions = {width, height, fit:'contain', quality:80 }
 
-watch(page, async (_page) => {
-    const response = await getData(_page)
-    metadata.value = response.meta
-    files.value = response.data
+const useQuery = (query) => {
+    // the text filter for files is defined here, not in the settings or the file component
+    const textFilter = (text) => {
+        if(text.trim()==='') return {}
+        return { title: { _contains: text } }
+    }
+    // get the field filter
+    const fieldFilter = (typeof props.filter === 'function') ? props.filter() : props.filter
+    // combine the 2 filters
+    const params = {
+        filter: {...textFilter(query), ...fieldFilter}
+    }
+    const existingIDs = []
+    for (const file of props.files) {
+        if(file?.id) existingIDs.push(file.id)
+    }
+    if(existingIDs.length>0) {
+        params.filter.id = {
+            _nin: existingIDs
+        }
+    }
+    return params
+}
 
-}, {immediate: true})
 
 async function onSelectClicked() {
     const result = await myModal.value.show()
@@ -87,21 +97,7 @@ async function onSelectClicked() {
         selection = [toRaw(selected.value)] // always return an array
     }
     emit('filesSelected', selection)
-}
-
-/* async function getMetadata() {
-    const response = await directus.items('directus_files').readByQuery({aggregate:{count:'*'}})
-    const metadata = response?.data?.[0]
-    return metadata
-} */
-async function getData(_page) {
-    const response = await directus.items('directus_files').readByQuery({
-        limit: limit.value,
-        page: _page,
-        meta:'*',
-        filter: filter.value
-    })
-    return response
+    selected.value = [] //reset
 }
 
 </script>

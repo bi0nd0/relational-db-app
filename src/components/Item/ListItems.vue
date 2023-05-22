@@ -9,9 +9,8 @@
         <div class="ms-auto d-flex align-items-center gap-2">
             <template v-if="loading">
                 <font-awesome-icon icon="fa-solid fa-spinner" spin fixed-width/>
+                <span>Loading...</span>
             </template>
-            <SelectPageSize v-model="limit" :options="[5,10,25,50,100]"/>
-            <b-pagination v-model="page" :perPage="limit" :totalItems="totalItems"/>
         </div>
     </header>
 
@@ -36,8 +35,9 @@
     </Table>
 
     
-    <div class="ms-auto">
+    <div class="d-flex gap-2">
         <b-pagination v-model="page" :perPage="limit" :totalItems="totalItems"/>
+        <SelectPageSize v-model="limit" :options="[5,10,25,50,100]"/>
     </div>
 
 </template>

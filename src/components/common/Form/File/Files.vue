@@ -27,7 +27,7 @@
             <UploadModal @filesSelected="onFilesSelected">
                 <template #button-text>Upload files</template>
             </UploadModal>
-            <AssetsModal @filesSelected="onFilesSelected" multiple>
+            <AssetsModal @filesSelected="onFilesSelected" :files="items" multiple>
                 <template #button-text>Select existing</template>
             </AssetsModal>
         </div>

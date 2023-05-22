@@ -22,9 +22,15 @@
         </template>
     </div>
 
-    <div class="d-flex gap-2 mt-2">    
-        <button class="btn btn-primary btn-sm" @click="onCreateNewClicked">create new</button>
-        <button class="btn btn-primary btn-sm" @click="onAddExistingClicked">add existing</button>
+    <div class="d-flex gap-2 mt-2">
+        <button class="btn btn-sm btn-primary" @click="onCreateNewClicked">
+            <font-awesome-icon icon="fa-solid fa-plus" fixed-width/>
+            <span class="ms-1">Create New</span>
+        </button>
+        <button class="btn btn-sm btn-primary" @click="onAddExistingClicked">
+            <font-awesome-icon icon="fa-solid fa-list" fixed-width/>
+            <span class="ms-1">Add Existing</span>
+        </button>
     </div>
 </div>
 
@@ -37,36 +43,31 @@
 
 <Drawer ref="addExistingRef">
     <template #header>Add existing</template>
-    <div>
-        <SearchInput v-model="query" @search="onSearch"></SearchInput>
-        <hr>
-        <div>
-            <template v-for="(item, index) in existingItems" :key="existingItems?.id ?? index">
-                <div class="d-flex">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" :id="`existing-${item.id}`" :value="item" v-model="selected">
-                        <label :for="`existing-${item.id}`">
-                            <template v-if="(typeof preview == 'function')">
-                                <span v-html="preview(item)"></span>
-                            </template>
-                            <template v-else>
-                                <span v-html="item?.id ?? '--'"></span>
-                            </template>
-                        </label>
-                    </div>
+    <SelectExisting :collection="related" :useQuery="useQuery" v-slot="{items}">
+        <template v-for="(item, index) in items" :key="items?.id ?? index">
+            <div class="d-flex border-bottom">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" :id="`existing-${item.id}`" :value="item" v-model="selected">
+                    <label :for="`existing-${item.id}`">
+                        <template v-if="(typeof preview == 'function')">
+                            <span v-html="preview(item)"></span>
+                        </template>
+                        <template v-else>
+                            <span v-html="item?.id ?? '--'"></span>
+                        </template>
+                    </label>
                 </div>
-            </template>
-        </div>
-    </div>
+            </div>
+        </template>
+    </SelectExisting>
 </Drawer>
 
 </template>
 
 <script setup>
 import FormField from '@/models/FormField'
-import { ref, toRefs, computed, watch, defineAsyncComponent, toRaw, onMounted } from 'vue'
-import {directus} from '@/API/'
-import SearchInput from './SearchInput.vue';
+import { ref, toRefs, computed, defineAsyncComponent, toRaw, onMounted } from 'vue'
+import SelectExisting from './SelectExisting.vue';
 
 const MyForm = defineAsyncComponent(() => import('./Form.vue'))
 
@@ -82,6 +83,18 @@ const {related, foreign_key, preview, filter} = field.value
 const items = computed( () => {
     return modelValue.value.map(item => toRaw(item?.[foreign_key]))
 })
+
+const useQuery = (query) => {
+    const params = {}
+    params.filter = filter(query) // apply filter if a query is set
+    const existingIDs = currentIDs.value
+    if(existingIDs.length>0) {
+        params.filter.id = {
+            _nin: currentIDs.value 
+        }
+    }
+    return params
+}
 
 function updateModelValue(_items=[]) {
     const serialized = _items.map( item => ({[foreign_key]:item}) ) 
@@ -100,8 +113,6 @@ const newItemFields =ref([])
 
 const addExistingRef = ref()
 const selected = ref([])
-const existingItems = ref([]) // this is used in the modal
-const query = ref('')
 
 const currentIDs = computed( () => {
     const _ids = []
@@ -111,19 +122,6 @@ const currentIDs = computed( () => {
     return _ids
 })
 
-async function search(query) {
-    const params = { limit: -1 } // default params
-    params.filter = filter(query) // apply filter if a query is set
-    const existingIDs = currentIDs.value
-    if(existingIDs.length>0) {
-        params.filter.id = {
-            _nin: currentIDs.value 
-        }
-    }
-    const response = await directus.items(related).readByQuery(params)
-    const {data:_data=[]} = response
-    existingItems.value = _data
-}
 async function addExisting() {
     const _items = [...items.value]
     const _selectedItems = selected.value
@@ -177,15 +175,11 @@ async function onCreateNewClicked() {
 
 async function onAddExistingClicked() {
     selected.value = [] // reset ids
-    query.value = '' // reset query
-    await search('')
     const response = await addExistingRef.value.show()
     if(response===false) return
     else addExisting()
 
 }
-
-function onSearch(value) { search(value) }
 
 </script>
 
