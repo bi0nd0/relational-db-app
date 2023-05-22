@@ -25,16 +25,7 @@ export default class extends FormField {
     }
 
     async setInitialValue(value) {
-        console.log(value)
-        const foreign_key = this.foreign_key
-        const relations = value ?? []
-        if(!foreign_key) throw new Error(`Foreign key not defined`)
-        const _ids = []
-        for (const relation of relations) {
-            if(foreign_key in relation) _ids.push(relation[foreign_key])
-        }
-        const data = await this.fetchIDs(_ids)
-        this.__value = data.map( item => ({[foreign_key]:item}) )
+        this.__value = value
     }
     
     async fetchIDs(ids=[]) {

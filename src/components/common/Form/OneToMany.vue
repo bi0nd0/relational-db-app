@@ -97,11 +97,11 @@ const {
 } = field.value
 
 const items = computed( () => {
-    return modelValue.value.map(item => toRaw(item?.[foreign_key]))
+    return modelValue.value.map(item => toRaw(item))
 })
 
 function updateModelValue(_items=[]) {
-    const serialized = _items.map( item => ({[foreign_key]:item}) ) 
+    const serialized = _items.map( item => item ) 
     emit('update:modelValue', serialized)
 }
 
