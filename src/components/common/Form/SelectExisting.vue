@@ -2,9 +2,12 @@
 
     <div class="d-flex flex-column gap-2">
         <SearchInput v-model="query" @search="onSearch"></SearchInput>
-        <span v-if="metadata.filter_count>0" class="text-muted">
-            {{`${from}-${to} of ${metadata.filter_count}`}}
-        </span>
+        <div class="d-flex gap-2 align-items-center">
+            <span v-if="metadata.filter_count>0" class="text-muted">
+                {{`${from}-${to} of ${metadata.filter_count}`}}
+            </span>
+            <slot name="header"></slot>
+        </div>
         <div>
             <slot :items="items"></slot>
         </div>
