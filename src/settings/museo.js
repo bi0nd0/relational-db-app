@@ -15,7 +15,14 @@ export default {
                 fields: opera.fields,
                 filter: (text) => {
                     if(text.trim()==='') return {}
-                    return { autn: { _contains: text } }
+                    return {
+                        _or: [
+                            { nctr: { _contains: text } },
+                            { nctn: { _contains: text } },
+                            { ogtn: { _contains: text } },
+                            { ogtp: { _contains: text } },
+                        ]
+                    }
                 },
             }),
         ]

@@ -122,7 +122,7 @@ const currentIDs = computed( () => {
     return _ids
 })
 
-async function addExisting() {
+function addExisting() {
     const _items = [...items.value]
     const _selectedItems = selected.value
     if(_selectedItems.length===0) return

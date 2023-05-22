@@ -97,19 +97,16 @@ const useQuery = (query) => {
 }
 
 async function onSelectClicked() {
-    try {
-        const result = await myModal.value.show()
-        if(!result) return // ok was not clicked; exit
-        let selection = []
-        if(multiple.value===true ) {
-            selection = selected.value.map(_file => toRaw(_file))
-        }else if(multiple.value===false) {
-            selection = [toRaw(selected.value)] // always return an array
-        }
-        emit('filesSelected', selection)
-    } finally {
-        selected.value = [] //reset
+    selected.value = [] //reset
+    const result = await myModal.value.show()
+    if(!result) return // ok was not clicked; exit
+    let selection = []
+    if(multiple.value===true ) {
+        selection = selected.value.map(_file => toRaw(_file))
+    }else if(multiple.value===false) {
+        selection = [toRaw(selected.value)] // always return an array
     }
+    emit('filesSelected', selection)
 }
 
 function changeSize() {
