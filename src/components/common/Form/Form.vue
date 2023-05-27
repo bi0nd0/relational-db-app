@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { toRefs, computed } from 'vue'
+import { toRefs, computed, watchEffect, watch } from 'vue'
 import {
     ManyToMany,
     OneToMany,
@@ -75,11 +75,12 @@ import {
     StandardInput,
 } from '.'
 
-const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
     fields: { type: Array, default: [] },
     // modelValue: { type: [Array,Object], default: [] },
 })
+
+const emit = defineEmits(['change'])
 
 const {fields} = toRefs(props)
 
@@ -87,9 +88,14 @@ const data = () => {
     const onlyDirty = fields.value.filter(field => field.dirty===true)
     const keyValuesList = onlyDirty.map(field => [field.name, field.value])
     const _data = Object.fromEntries(keyValuesList)
-    // emit('update:modelValue', _data)
     return _data
 } // form data (will be passed as prop in the slots)
+
+watch( fields, () => {
+    emit('change', data())
+}, {immediate: true, deep: true})
+
+defineExpose({data})
 
 </script>
 

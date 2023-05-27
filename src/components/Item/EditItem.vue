@@ -4,34 +4,33 @@
     </div>
     <h2>Edit item ID #{{ id }}</h2>
 
-    <EditItem :collection="collection" :id="id" :fieldsGenerator="collectionSettings.fields" @save="onSaved" @error="onError">
-        <template v-slot="{ fields, save }">
-            <Form :fields="fields">
-                <template v-slot:footer="{data}">
-                    <div class="buttons">
-                        <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
-                            <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
-                            <span class="ms-1">Cancel</span>
-                        </button>
-                        <button class="btn btn-sm btn-primary" @click="save(data())">
-                            <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
-                            <span class="ms-1">Save</span>
-                        </button>
-                    </div>
-                </template>
-            </Form>
-        </template>
-    </EditItem>
+    <FieldsLoader :data="data" :generator="fieldsGenerator" v-slot="{ fields }">
+        <Form :fields="fields">
+            <template v-slot:footer="{data}">
+                <div class="buttons">
+                    <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
+                        <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
+                        <span class="ms-1">Cancel</span>
+                    </button>
+                    <button class="btn btn-sm btn-primary" @click="onSaveClicked(data())">
+                        <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
+                        <span class="ms-1">Save</span>
+                    </button>
+                </div>
+            </template>
+        </Form>
+    </FieldsLoader>
  
 </template>
 
 <script setup>
-import { toRefs, inject, computed } from 'vue'
+import { ref, toRefs, inject, computed, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
 import ItemsNavigation from './ItemsNavigation.vue'
-import EditItem from '../Renderless/EditItem.vue'
+import FieldsLoader from '../Renderless/FieldsLoader.vue'
+import store from '../../store'
 
 const toaster = inject('$toaster')
 const modal = inject('$modalManager')
@@ -40,30 +39,38 @@ const props = defineProps({
     collection: { type: String, default: '' },
     id: { type: String, default: null }, // this prop is coming from the router
 })
+
 const {id, collection} = toRefs(props)
 
-const router = useRouter()
-
 // retrieve the settings for the current collection
-const collectionSettings = computed( () => settings?.[collection.value])
+const fieldsGenerator = computed( () => settings?.[collection.value]?.fields)
+const data = ref()
+
+const loadData = async () => {
+    data.value = await store.collections.fetchOne(props.collection, props.id)
+}
+// trigger loadData whenever there is a change in one of the props
+watchEffect(loadData)
 
 async function onCancelClicked() {
     const confirmed = await modal.confirm({title:'Confirm', body:'Are you sure you want to leave this page?'})
     if(!confirmed) return
     goToList()
 }
+
+async function onSaveClicked(data) {
+    try {
+        await store.collections.updateOne(collection.value, id.value, data)
+        toaster.toast({title:'Success', body:'Data was saved successfully'}, 'top right')
+        goToList()
+    } catch (error) {
+        toaster.toast({title:'Error', body: error}, 'top right')
+    }
+}
+
+const router = useRouter()
 function goToList() {
     router.push({name: 'listItems', params: { collection: collection.value }})
-}
-
-async function onSaved(response) {
-    toaster.toast({title:'Success', body:'Data was saved successfully'}, 'top right')
-    goToList()
-}
-
-function onError(error) {
-    console.error(error)
-    toaster.toast({title:'Error', body: error}, 'top right')
 }
 
 </script>

@@ -2,7 +2,6 @@
 <slot name="label">
     <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
 </slot>
-
 <div class="border rounded p-2" :id="`field-${field.name}`">
     <div class="d-flex flex-column gap-2">
         <template v-for="(item, index) in items" :key="item">
@@ -46,10 +45,9 @@
 
 <Drawer ref="editItemRef">
     <template #header>Edit</template>
-    <div>
-
-        <MyForm :fields="editited" />
-    </div>
+    <FieldsLoader :data="editited" :generator="field.fields" v-slot="{fields}">
+        <MyForm :fields="fields" @change="editData = $event"/>
+    </FieldsLoader>
 </Drawer>
 
 <Drawer ref="addExistingRef">
@@ -79,6 +77,9 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, defineAsyncComponent, toRaw, onMounted } from 'vue'
 import SelectExisting from './SelectExisting.vue';
+import FieldsLoader from '../../Renderless/FieldsLoader.vue';
+
+import store from '../../../store'
 
 const MyForm = defineAsyncComponent(() => import('./Form.vue'))
 
@@ -194,12 +195,20 @@ async function onAddExistingClicked() {
     else addExisting()
 }
 
+const editData = ref()
 async function onEditClicked(item) {
     const fieldItems = toRaw(field.value.value)
-    const _data = fieldItems.find(_item => {
+    const _found = fieldItems.find(_item => {
         return _item?.[foreign_key]?.id===item.id
     })
-    console.log(_data)
+    const relatedCollection = field.value.related
+    const relatedID = _found?.[foreign_key]?.id
+    const _data = await store.collections.fetchOne(relatedCollection, relatedID)
+
+    editited.value = _data
+    const response = await editItemRef.value.show()
+    if(response===false) return
+    console.log(editData.value)
     /* if(!_data) return
     const editFields = field.value.fields()
     for (const editField of editFields) {
@@ -207,11 +216,10 @@ async function onEditClicked(item) {
     }
     console.log(editFields)
     editited.value = editFields
-    const response = await editItemRef.value.show()
-    if(response===false) return */
+    
     // fieldItems.splice(index, 1, item)
     // console.log(_items)
-    // updateModelValue(_items)
+    // updateModelValue(_items)*/
 }
 
 </script>
