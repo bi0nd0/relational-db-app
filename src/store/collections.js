@@ -27,7 +27,21 @@ const store = reactive({
         }
     },
     async deleteOne(collection, id) {
-        await directus.items(collection).deleteOne(id)
+        return await directus.items(collection).deleteOne(id)
+    },
+    async updateOne(collection, id, data) {
+        try {
+            return await directus.items(collection).updateOne(id, data)
+        } catch (error) {
+            console.log(`there was an error fetching ${collection}`, error)
+        }
+    },
+    async createOne(collection, data) {
+        try {
+            return await directus.items(collection).createOne(data)
+        } catch (error) {
+            console.error(error)
+        }
     },
     async getIDs(collection) {
         try {

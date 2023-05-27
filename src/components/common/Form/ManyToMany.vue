@@ -13,7 +13,10 @@
                 <template v-else>
                     <div v-html="item?.id ?? '--'"></div>
                 </template>
-                <div class="ms-auto">
+                <div class="d-flex ms-auto gap-2">
+                    <button class="btn btn-secondary btn-sm" @click="onEditClicked(item)">
+                        <font-awesome-icon icon="fa-solid fa-pencil" fixed-width/>
+                    </button>
                     <button class="btn btn-danger btn-sm" @click="onRemoveClicked(item)">
                         <font-awesome-icon icon="fa-solid fa-trash" fixed-width/>
                     </button>
@@ -38,6 +41,14 @@
     <template #header>Create new</template>
     <div>
         <MyForm :fields="newItemFields" />
+    </div>
+</Drawer>
+
+<Drawer ref="editItemRef">
+    <template #header>Edit</template>
+    <div>
+
+        <MyForm :fields="editited" />
     </div>
 </Drawer>
 
@@ -114,6 +125,9 @@ const newItemFields =ref([])
 const addExistingRef = ref()
 const selected = ref([])
 
+const editItemRef = ref()
+const editited = ref()
+
 const currentIDs = computed( () => {
     const _ids = []
     for (const _item of items.value) {
@@ -178,7 +192,26 @@ async function onAddExistingClicked() {
     const response = await addExistingRef.value.show()
     if(response===false) return
     else addExisting()
+}
 
+async function onEditClicked(item) {
+    const fieldItems = toRaw(field.value.value)
+    const _data = fieldItems.find(_item => {
+        return _item?.[foreign_key]?.id===item.id
+    })
+    console.log(_data)
+    /* if(!_data) return
+    const editFields = field.value.fields()
+    for (const editField of editFields) {
+        editField.value = _data?.[foreign_key][editField?.name]
+    }
+    console.log(editFields)
+    editited.value = editFields
+    const response = await editItemRef.value.show()
+    if(response===false) return */
+    // fieldItems.splice(index, 1, item)
+    // console.log(_items)
+    // updateModelValue(_items)
 }
 
 </script>
