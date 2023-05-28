@@ -4,23 +4,21 @@
     </div>
     <h2>Edit item ID #{{ id }}</h2>
 
-    <FieldsLoader :data="data" :generator="fieldsGenerator" v-slot="{ fields }">
-        <Form :fields="fields">
-            <template v-slot:footer="{data}">
-                <div class="buttons">
-                    <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
-                        <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
-                        <span class="ms-1">Cancel</span>
-                    </button>
-                    <button class="btn btn-sm btn-primary" @click="onSaveClicked(data())">
-                        <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
-                        <span class="ms-1">Save</span>
-                    </button>
-                </div>
-            </template>
-        </Form>
-    </FieldsLoader>
- 
+    <Form :fields="fields">
+        <template v-slot:footer="{data}">
+            <div class="buttons">
+                <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
+                    <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
+                    <span class="ms-1">Cancel</span>
+                </button>
+                <button class="btn btn-sm btn-primary" @click="onSaveClicked(data())">
+                    <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
+                    <span class="ms-1">Save</span>
+                </button>
+            </div>
+        </template>
+    </Form>
+
 </template>
 
 <script setup>
@@ -29,8 +27,8 @@ import { useRouter } from 'vue-router'
 import * as settings from '../../settings/'
 import Form from '../common/Form/Form.vue'
 import ItemsNavigation from './ItemsNavigation.vue'
-import FieldsLoader from '../Renderless/FieldsLoader.vue'
 import store from '../../store'
+import {useData} from '../../models/FormField'
 
 const toaster = inject('$toaster')
 const modal = inject('$modalManager')
@@ -43,11 +41,22 @@ const props = defineProps({
 const {id, collection} = toRefs(props)
 
 // retrieve the settings for the current collection
-const fieldsGenerator = computed( () => settings?.[collection.value]?.fields)
-const data = ref()
+const getFields = computed( () => settings?.[collection.value]?.fields)
+const fields = ref([])
 
+// load data and assign values to the fields
 const loadData = async () => {
-    data.value = await store.collections.fetchOne(props.collection, props.id)
+    const data = await store.collections.fetchOne(props.collection, props.id)
+    // const _fields = getFields?.value()
+    // for (const _field of _fields) {
+    //     let value = data?.[_field.name]
+    //     if(_field instanceof ManyToManyField) value = await _field.fetchData(value)
+    //     if(_field instanceof ManyToOneField) value = await _field.fetchData(value)
+    //     if(_field instanceof Files) value = await _field.fetchData(value)
+    //     _field.setValue(value, false)
+    // }
+    // fields.value = _fields
+    fields.value = await useData(getFields?.value(), data)
 }
 // trigger loadData whenever there is a change in one of the props
 watchEffect(loadData)

@@ -1,12 +1,12 @@
 <template>
 <div class="d-flex gap-2">
-    <button class="btn btn-sm btn-outline-secondary" @click="onDownloadClicked" :disabled="!file">
+    <button class="btn btn-sm btn-light" @click="onDownloadClicked" :disabled="!file">
         <font-awesome-icon icon="fa-download" fixed-width/>
     </button>
-    <button class="btn btn-sm btn-outline-secondary" @click="onShowClicked" :disabled="!file">
+    <button class="btn btn-sm btn-light" @click="onShowClicked" :disabled="!file">
         <font-awesome-icon icon="fa-external-link" fixed-width/>
     </button>
-    <button class="btn btn-sm btn-outline-secondary" @click="onDeleteClicked" :disabled="!file">
+    <button class="btn btn-sm btn-light text-danger" @click="onDeleteClicked" :disabled="!file">
         <font-awesome-icon icon="fa-trash" fixed-width/>
     </button>
 </div>

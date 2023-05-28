@@ -22,8 +22,4 @@ export default class extends FormField {
         if(params?.fields) this.fields = params.fields
         if(params?.filter) this.filter = params.filter
     }
-
-    async setInitialValue(value) {
-        this.__value = value
-    }
 }

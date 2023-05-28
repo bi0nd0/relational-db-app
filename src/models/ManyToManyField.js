@@ -25,19 +25,18 @@ export default class extends FormField {
     }
 
     async setInitialValue(value) {
-        const foreign_key = this.foreign_key
         const relations = value ?? []
-        if(!foreign_key) throw new Error(`Foreign key not defined`)
-        const _ids = []
-        for (const relation of relations) {
-            if(foreign_key in relation) _ids.push(relation[foreign_key])
-
-        }
-        const data = await this.fetchIDs(_ids)
-        this.__value = data.map( item => ({[foreign_key]:item}) )
+        const data = await this.fetchData(relations)
+        const mapped = data.map( item => ({[this.foreign_key]:item}) )
+        super.setInitialValue(mapped)
     }
     
-    async fetchIDs(ids=[]) {
+    async fetchData(relations=[]) {
+        const foreign_key = this.foreign_key
+        const ids = []
+        for (const relation of relations) {
+            if(foreign_key in relation) ids.push(relation[foreign_key])
+        }
         if(ids.length==0) return []
         // make a request filtering by id
         const response = await directus.items(this.related).readByQuery({
@@ -51,30 +50,5 @@ export default class extends FormField {
         const {data:_data=[]} = response
         return _data
     }
-
-
-    /**
-     * transform to the format expected by the API
-     * @returns
-     */
-    /* ___serialize() {
-        const foreign_key = this.foreign_key
-        const serialized = []
-        
-        // const initialIDs = relations.map(_relation => _relation?.[id])
-        for (const item of this.value) {
-            const relationID = this.getRelationID(item)
-            if(relationID) serialized.push(relationID) // existing relation
-            else serialized.push({[foreign_key]:item}) // new item (existing or not)
-        }
-        return serialized
-    } */
-    
-    // check if an element is related to the parent
-    /* getRelationID(element) {
-        const relations = this.initialValue ?? []
-        const found = relations.find( _relation => _relation.id === element.id )
-        return found?.relationID
-    } */
 
 }

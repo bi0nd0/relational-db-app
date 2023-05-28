@@ -13,10 +13,10 @@
                     <div v-html="item?.id ?? '--'"></div>
                 </template>
                 <div class="d-flex ms-auto gap-2">
-                    <button class="btn btn-secondary btn-sm" @click="onEditClicked(item)">
+                    <button class="btn btn-light btn-sm" @click="onEditClicked(item)">
                         <font-awesome-icon icon="fa-solid fa-pencil" fixed-width/>
                     </button>
-                    <button class="btn btn-danger btn-sm" @click="onRemoveClicked(item)">
+                    <button class="btn btn-light btn-sm text-danger" @click="onRemoveClicked(item)">
                         <font-awesome-icon icon="fa-solid fa-trash" fixed-width/>
                     </button>
                 </div>
@@ -36,21 +36,19 @@
     </div>
 </div>
 
-<Drawer ref="createNewRef">
+<b-drawer ref="createNewRef">
     <template #header>Create new</template>
     <div>
         <MyForm :fields="newItemFields" />
     </div>
-</Drawer>
+</b-drawer>
 
-<Drawer ref="editItemRef">
+<b-drawer ref="editItemRef">
     <template #header>Edit</template>
-    <FieldsLoader :data="editited" :generator="field.fields" v-slot="{fields}">
-        <MyForm :fields="fields" @change="editData = $event"/>
-    </FieldsLoader>
-</Drawer>
+    <MyForm :fields="editFields" @change="editedData = $event"/>
+</b-drawer>
 
-<Drawer ref="addExistingRef">
+<b-drawer ref="addExistingRef">
     <template #header>Add existing</template>
     <SelectExisting :collection="related" :useQuery="useQuery" v-slot="{items}">
         <template v-for="(item, index) in items" :key="items?.id ?? index">
@@ -69,7 +67,7 @@
             </div>
         </template>
     </SelectExisting>
-</Drawer>
+</b-drawer>
 
 </template>
 
@@ -77,8 +75,8 @@
 import FormField from '@/models/FormField'
 import { ref, toRefs, computed, defineAsyncComponent, toRaw, onMounted } from 'vue'
 import SelectExisting from './SelectExisting.vue';
-import FieldsLoader from '../../Renderless/FieldsLoader.vue';
 
+import {useData} from '../../../models/FormField'
 import store from '../../../store'
 
 const MyForm = defineAsyncComponent(() => import('./Form.vue'))
@@ -125,9 +123,6 @@ const newItemFields =ref([])
 
 const addExistingRef = ref()
 const selected = ref([])
-
-const editItemRef = ref()
-const editited = ref()
 
 const currentIDs = computed( () => {
     const _ids = []
@@ -195,31 +190,44 @@ async function onAddExistingClicked() {
     else addExisting()
 }
 
-const editData = ref()
-async function onEditClicked(item) {
-    const fieldItems = toRaw(field.value.value)
-    const _found = fieldItems.find(_item => {
-        return _item?.[foreign_key]?.id===item.id
-    })
-    const relatedCollection = field.value.related
-    const relatedID = _found?.[foreign_key]?.id
-    const _data = await store.collections.fetchOne(relatedCollection, relatedID)
+/* EDIT */
 
-    editited.value = _data
-    const response = await editItemRef.value.show()
-    if(response===false) return
-    console.log(editData.value)
-    /* if(!_data) return
-    const editFields = field.value.fields()
-    for (const editField of editFields) {
-        editField.value = _data?.[foreign_key][editField?.name]
+const editItemRef = ref()
+const editedData = ref()
+const editFields = ref([])
+
+
+// const editCache = new EditCache()
+import {checkKeys, assignValue} from '../../../utils/objectUtils'
+
+let editCache = {}
+async function onEditClicked(item) {
+    const relatedCollection = field.value.related
+    const relatedID = item?.id
+
+    let loadedFields = editCache?.[relatedCollection]?.[relatedID]
+    if(!loadedFields) {
+        const _data = await store.collections.fetchOne(relatedCollection, relatedID)
+        loadedFields = await useData(field.value.fields(), _data)
+        assignValue(editCache, relatedCollection, relatedID, loadedFields)
     }
-    console.log(editFields)
-    editited.value = editFields
-    
-    // fieldItems.splice(index, 1, item)
-    // console.log(_items)
-    // updateModelValue(_items)*/
+    editFields.value = loadedFields
+    const response = await editItemRef.value.show()
+
+    if(response===false) return
+}
+
+function editItem(index) {
+    const _items = [...items.value]
+    const fields = toRaw(editFields.value)
+    if(index<0) return
+    for (const field of fields) {
+        if(!field.dirty) continue
+        _items[index][field.name] = field.value
+    }
+    // _items.splice(index, 1)
+
+    // updateModelValue(_items)
 }
 
 </script>

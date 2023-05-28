@@ -15,10 +15,10 @@
                 </template>
             </div>
             <div class="d-flex ms-auto gap-2">
-                <button class="btn btn-sm btn-secondary ms-auto" @click="onSelectExistingClicked">
+                <button class="btn btn-sm btn-light ms-auto" @click="onSelectExistingClicked">
                     <font-awesome-icon :icon="['fa-solid', 'up-right-from-square']" fixed-width/>
                 </button>
-                <button class="btn btn-sm btn-danger ms-auto" @click="onRemoveClicked">
+                <button class="btn btn-sm btn-light text-danger ms-auto" @click="onRemoveClicked">
                     <font-awesome-icon icon="fa-solid fa-trash" fixed-width/>
                 </button>
             </div>

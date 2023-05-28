@@ -77,6 +77,7 @@ import {
 
 const props = defineProps({
     fields: { type: Array, default: [] },
+    data: { type: Object, default: null },
     // modelValue: { type: [Array,Object], default: [] },
 })
 

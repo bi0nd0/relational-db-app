@@ -17,19 +17,20 @@ export default class extends Image {
     }
 
     async setInitialValue(value) {
-        const foreign_key = this.foreign_key
         const relations = value ?? []
-        if(!foreign_key) throw new Error(`Foreign key not defined`)
-        const _ids = []
-        for (const relation of relations) {
-            if(foreign_key in relation) _ids.push(relation[foreign_key])
-
-        }
-        const data = await this.fetchIDs(_ids)
-        this.__value = data.map( item => ({[foreign_key]:item}) )
+        const data = await this.fetchData(relations)
+        const mapped = data.map( item => ({[this.foreign_key]:item}) )
+        super.setInitialValue(mapped)
     }
     
-    async fetchIDs(ids=[]) {
+    async fetchData(relations=[]) {
+        const foreign_key = this.foreign_key
+        if(!foreign_key) throw new Error(`Foreign key not defined`)
+        const ids = []
+        for (const relation of relations) {
+            if(foreign_key in relation) ids.push(relation[foreign_key])
+
+        }
         if(ids.length==0) return []
         // make a request filtering by id
         const response = await directus.items(this.related).readByQuery({

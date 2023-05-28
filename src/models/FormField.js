@@ -20,6 +20,7 @@ export default class {
     }
     
     async setInitialValue(value) { this.__initialValue = this.__value = value }
+
     get initialValue() { return this.__initialValue }
 
     get value() { return this.__value }
@@ -27,6 +28,11 @@ export default class {
         value = this.beforeSetValue(value)
         this.__dirty = true
         this.__value = value
+    }
+
+    setValue(value, dirty=true) {
+        this.__value = value
+        this.__dirty = dirty
     }
 
     // visitor applied to the value is set
@@ -58,4 +64,36 @@ export default class {
         return value
     }
 
+}
+
+/**
+ * assign initial data to a set of fields.
+ * setInitialValue will load data remotely
+ * if the object is designed to do so
+ * 
+ * @param {Array} fields 
+ * @param {Object} data 
+ * @returns {Array}
+ */
+export const useData = async (fields, data={}) => {
+    for (const field of fields) {
+        const value = data?.[field.name]
+        await field.setInitialValue(value)
+    }
+    return fields
+}
+/**
+ * assign initial data to a set of fields.
+ * the data is set as is
+ * 
+ * @param {Array} fields 
+ * @param {Object} data 
+ * @returns {Array}
+ */
+export const setData = async (fields, data={}) => {
+    for (const field of fields) {
+        const value = data?.[field.name]
+        field.setValue(value, false)
+    }
+    return fields
 }

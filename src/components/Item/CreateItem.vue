@@ -1,21 +1,20 @@
 <template>
-    <FieldsLoader :generator="fieldsGenerator" v-slot="{fields}">
-        <Form :fields="fields">
-            <template v-slot:footer="{data}">
-                <div class="buttons">
-                    <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
-                        <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
-                        <span class="ms-1">Cancel</span>
-                    </button>
-                    <button class="btn btn-sm btn-primary" @click="onSaveClicked(data())">
-                        <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
-                        <span class="ms-1">Save</span>
-                    </button>
-                </div>
-            </template>
-        </Form>
-    </FieldsLoader>
-    
+
+    <Form :fields="fields">
+        <template v-slot:footer="{data}">
+            <div class="buttons">
+                <button class="btn btn-sm btn-secondary" @click="onCancelClicked()">
+                    <font-awesome-icon icon="fa-solid fa-xmark" fixed-width/>
+                    <span class="ms-1">Cancel</span>
+                </button>
+                <button class="btn btn-sm btn-primary" @click="onSaveClicked(data())">
+                    <font-awesome-icon icon="fa-solid fa-floppy-disk" fixed-width/>
+                    <span class="ms-1">Save</span>
+                </button>
+            </div>
+        </template>
+    </Form>
+
 </template>
 
 <script setup>
@@ -24,7 +23,6 @@ import { useRouter } from 'vue-router'
 import Form from '../common/Form/Form.vue'
 import * as settings from '../../settings/'
 import store from '../../store'
-import FieldsLoader from '../Renderless/FieldsLoader.vue'
 
 const toaster = inject('$toaster')
 const modal = inject('$modalManager')
@@ -34,7 +32,7 @@ const props = defineProps({
 })
 
 // retrieve the settings
-const fieldsGenerator = computed( () => settings?.[props.collection]?.fields)
+const fields = computed( () => settings?.[props.collection]?.fields())
 
 async function onCancelClicked() {
     const confirmed = await modal.confirm({title:'Confirm', body:'Are you sure you want to leave this page?'})

@@ -23,17 +23,17 @@ export default class extends FormField {
     }
 
     async setInitialValue(value) {
-        const id = value?.id
-        if(!(id)) return null
         // fetch data of related item
-        const data = await this.getById(id)
-        this.__value = data
+        const data = await this.fetchData(value)
+        super.setInitialValue(data)
     }
 
     /**
      * fetch a list of items matching specific IDs 
      */
-    async getById(id) {
+    async fetchData(relation) {
+        const id = relation?.id
+        if(!(id)) return null
         // make a request filtering by id
         const item = await directus.items(this.related).readOne(id)
         return item
