@@ -12,8 +12,8 @@
             <slot :items="items"></slot>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <b-pagination v-model="page" :perPage="perPage" :totalItems="metadata.filter_count"/>
-            <SelectPageSize v-model="perPage" :options="paginationOptions"/>
+            <b-pagination v-model="page" :perPage="perPage" :totalItems="metadata.filter_count" size="sm"/>
+            <b-pagination-dropdown v-model="perPage" :options="paginationOptions"/>
         </div>
     </div>
 
@@ -23,7 +23,6 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import {directus} from '@/API/'
 import SearchInput from './SearchInput.vue';
-import SelectPageSize from '../SelectPageSize.vue';
 
 const props = defineProps({
     collection: { Type: String, default: '' },

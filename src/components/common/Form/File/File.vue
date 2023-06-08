@@ -2,36 +2,38 @@
     <slot name="label">
         <label :for="`field-${field.name}`" class="form-label" v-html="field.label"></label>
     </slot>
-    <div v-if="modelValue?.id">
-        <div :id="`field-${field.name}`" class="d-flex flex-row align-items-end">
-            <div class="me-2">
-                <template v-if="isImage(asset)">
-                    <img :src="thumbnail(asset)"/>
-                </template>
-                <template v-else>
-                    <font-awesome-icon icon="fa-solid fa-file" fixed-width :style="{height: `100px`, width: `100px`}"/>
-                </template>
+    <div class="border rounded p-2">
+        <template v-if="modelValue?.id">
+            <div :id="`field-${field.name}`" class="d-flex flex-row align-items-end">
+                <div class="me-2">
+                    <template v-if="isImage(asset)">
+                        <img :src="thumbnail(asset)"/>
+                    </template>
+                    <template v-else>
+                        <font-awesome-icon icon="fa-solid fa-file" fixed-width :style="{height: `100px`, width: `100px`}"/>
+                    </template>
+                </div>
+                <div class="d-flex flex-column">
+                    <FileMetadata :file="asset" />
+                    <FileActions :file="asset" 
+                        @downloadFile="onDownloadClicked"
+                        @showFile="onShowAssetClicked"
+                        @deleteFile="onDeleteFileClicked"
+                    />
+                </div>
             </div>
-            <div class="d-flex flex-column">
-                <FileMetadata :file="asset" />
-                <FileActions :file="asset" 
-                    @downloadFile="onDownloadClicked"
-                    @showFile="onShowAssetClicked"
-                    @deleteFile="onDeleteFileClicked"
-                />
+        </template>
+        <template v-else>
+            <div class="d-flex gap-2 mt-2">
+                <UploadModal @filesSelected="onFilesSelected">
+                    <template #button-text>Upload file</template>
+                </UploadModal>
+                <AssetsModal @filesSelected="onFilesSelected">
+                    <template #button-text>Select existing</template>
+                </AssetsModal>
             </div>
-        </div>
+        </template>
     </div>
-    <template v-else>
-        <div class="d-flex gap-2 mt-2">
-            <UploadModal @filesSelected="onFilesSelected">
-                <template #button-text>Upload file</template>
-            </UploadModal>
-            <AssetsModal @filesSelected="onFilesSelected">
-                <template #button-text>Select existing</template>
-            </AssetsModal>
-        </div>
-    </template>
 </template>
 
 <script setup>

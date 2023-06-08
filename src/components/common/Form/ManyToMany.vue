@@ -196,38 +196,69 @@ const editItemRef = ref()
 const editedData = ref()
 const editFields = ref([])
 
+import {assignValue} from '../../../utils/objectUtils'
+import { setData } from '../../../models/FormField';
 
-// const editCache = new EditCache()
-import {checkKeys, assignValue} from '../../../utils/objectUtils'
-
-let editCache = {}
+/**
+ * once data has been loaded and normalized
+ * using useData, work on the cached
+ */
+const useCache = (fields) => {
+    let cache = {}
+    return {
+        delete(collection, id) {
+            delete cache?.[collection]?.[id]
+        },
+        async get(collection, id) {
+            let cachedData = cache?.[collection]?.[id]
+            if(!cachedData) {
+                // fetch data and cache it
+                const _data = await store.collections.fetchOne(collection, id)
+                cachedData = await useData(fields(), _data)
+                // set nested value in cache
+                assignValue(cache, collection, id, cachedData)
+            }
+            return cachedData
+        },
+        set(collection, id, value) {
+            assignValue(cache, collection, id, value)
+        }
+    }
+}
+const cache = useCache(field.value.fields)
 async function onEditClicked(item) {
+    editFields.value = [] // reset
     const relatedCollection = field.value.related
     const relatedID = item?.id
 
-    let loadedFields = editCache?.[relatedCollection]?.[relatedID]
-    if(!loadedFields) {
-        const _data = await store.collections.fetchOne(relatedCollection, relatedID)
-        loadedFields = await useData(field.value.fields(), _data)
-        assignValue(editCache, relatedCollection, relatedID, loadedFields)
-    }
-    editFields.value = loadedFields
-    const response = await editItemRef.value.show()
+    // get data from cache or from DB
+    let relatedFields = await cache.get(relatedCollection, relatedID)
+    // clone all fields so mapped data is untouched
+    editFields.value = relatedFields.map(_field => _field.clone())
 
-    if(response===false) return
+    const response = await editItemRef.value.show()
+    if(response===false) {
+        // revert to data before modification
+        cache.set(relatedCollection, relatedID, relatedFields)
+        return
+    }
+
+    cache.set(relatedCollection, relatedID, toRaw(editFields.value))
+
+    editItem(item)
 }
 
-function editItem(index) {
+function editItem(item) {
     const _items = [...items.value]
-    const fields = toRaw(editFields.value)
+    const index = _items.findIndex(_item => _item==item)
     if(index<0) return
+    const fields = toRaw(editFields.value)
+
     for (const field of fields) {
         if(!field.dirty) continue
         _items[index][field.name] = field.value
     }
-    // _items.splice(index, 1)
-
-    // updateModelValue(_items)
+    updateModelValue(_items)
 }
 
 </script>

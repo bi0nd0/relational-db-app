@@ -294,9 +294,9 @@ axios@^1.3.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-"bootstrap-vue@https://github.com/bi0nd0/bootstrap-vue.git#1.2.5":
+"bootstrap-vue@https://github.com/bi0nd0/bootstrap-vue.git#1.2.14":
   version "1.2.4"
-  resolved "https://github.com/bi0nd0/bootstrap-vue.git#7a48ce3e0c57188a9282bbce71291f0300185adf"
+  resolved "https://github.com/bi0nd0/bootstrap-vue.git#dde99e5491b28de374ccc3ed8ac06a30af0082e6"
   dependencies:
     "@popperjs/core" "^2.11.7"
     bootstrap "^5.2.3"

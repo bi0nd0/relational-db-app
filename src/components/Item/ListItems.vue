@@ -36,8 +36,8 @@
 
     
     <div class="d-flex gap-2">
-        <b-pagination v-model="page" :perPage="limit" :totalItems="totalItems"/>
-        <SelectPageSize v-model="limit" :options="[5,10,25,50,100]"/>
+        <b-pagination v-model="page" :perPage="limit" :totalItems="totalItems" size="sm"/>
+        <b-pagination-dropdown v-model="limit" :options="[5,10,25,50,100]"/>
     </div>
 
 </template>
@@ -48,7 +48,6 @@ import { useRoute, useRouter } from 'vue-router'
 import * as settings from '../../settings/'
 import Table from '../common/Table/Table.vue'
 import store from '../../store'
-import SelectPageSize from '../common/SelectPageSize.vue'
 
 const loading = ref(false)
 

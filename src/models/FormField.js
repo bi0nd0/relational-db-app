@@ -10,7 +10,7 @@ export default class {
     __value = null// value that can be updated
     __dirty = false // mark the field as dirty if modified
 
-    __ready = false
+    __ready = false // initial value has been set
 
     constructor(params) {
         if(params?.name) this.name = params.name
@@ -18,10 +18,23 @@ export default class {
         if(params?.type) this.type = params.type
         if(params?.value) this.__initialValue = this.__value = params.value
     }
+
+    /**
+     * make a clone of the instance
+     * @see https://stackoverflow.com/a/44782052
+     * @returns this a clone of the instance
+     */
+    clone() {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+    }
     
-    async setInitialValue(value) { this.__initialValue = this.__value = value }
+    async setInitialValue(value) {
+        this.__initialValue = this.__value = value
+        this.__ready = true
+    }
 
     get initialValue() { return this.__initialValue }
+    get ready() { return this.__ready }
 
     get value() { return this.__value }
     set value(value) {
@@ -79,6 +92,7 @@ export const useData = async (fields, data={}) => {
     for (const field of fields) {
         const value = data?.[field.name]
         await field.setInitialValue(value)
+        data[field.name] = field.value // update the data
     }
     return fields
 }
