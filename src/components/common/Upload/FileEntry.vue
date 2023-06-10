@@ -10,9 +10,9 @@
     <div class="d-flex flex-column">
         <FileMetadata :file="file" />
         <FileActions :file="file" 
-            @downloadAsset="onDownloadClicked"
-            @showAsset="onShowAssetClicked"
-            @deleteAsset="onDeleteFileClicked"
+            @downloadFile="onDownloadClicked"
+            @showFile="onShowAssetClicked"
+            @deleteFile="onDeleteFileClicked"
         />
 
     </div>
