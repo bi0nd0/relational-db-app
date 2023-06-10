@@ -8,6 +8,7 @@ import {
     File,
     Files,
     Image,
+    ExternalLinkField,
 } from '../models'
 import Divider from '../models/Divider'
 import {autore, museo } from '.'
@@ -16,6 +17,7 @@ export default {
     collection: 'opera',
     fields() {
         return [
+            new ExternalLinkField({ name: 'link', label: 'link', type: 'text', value: '' }),
             new FormField({ name: 'tsk', label: 'tsk', type: 'text', value: '' }),
             // new FormField({ name: 'id', label: 'id', type: 'text' }),
             new ManyToManyField({

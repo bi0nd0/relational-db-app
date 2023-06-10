@@ -39,6 +39,9 @@
                     <template v-else-if="field.type=='files'">
                         <Files v-model="field.value" :field="field"/>
                     </template>
+                    <template v-else-if="field.type=='external-link'">
+                        <ExternalLinkInput v-model="field.value" :field="field"/>
+                    </template>
                     <template v-else-if="field.type=='divider'">
                         <Divider />
                     </template>
@@ -73,6 +76,7 @@ import {
     Image,
     Divider,
     StandardInput,
+    ExternalLinkInput,
 } from '.'
 
 const props = defineProps({
