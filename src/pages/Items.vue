@@ -1,22 +1,9 @@
 <template>
     <div>
-
-        <router-view></router-view>
+        <router-view />
     </div>
 </template>
 
-<script>
+<script setup></script>
 
-export default {
-    setup(props, context) {
-
-    },
-    props: {
-        collection: { type: String, default: '' },
-    },
-}
-</script>
-
-<style scoped>
-
-</style>
+<style scoped></style>
