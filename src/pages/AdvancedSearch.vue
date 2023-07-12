@@ -28,6 +28,7 @@
         <div>
             <p>Step 2: set the search parameters</p>
         </div>
+
         <div class="d-flex flex-column gap-2">
             <div>
                 <label class="form-label" :for="`form-nctn`">nctn</label>
@@ -75,6 +76,8 @@
                 />
             </div>
         </div>
+        <button class="btn btn-sm btn-outline-success" @click="onSaveSearchClicked">save search</button>
+        <button class="btn btn-sm btn-outline-danger" @click="onResetSearchClicked">reset search</button>
 
         <div class="d-flex align-items-center gap-2" v-if="searchStore">
             <button class="btn btn-sm btn-outline-secondary" @click="onSearchClicked" >
@@ -112,6 +115,7 @@
 import { ref } from 'vue'
 import { debounce } from '../utils'
 import { useSearch } from '../store/search'
+import { useStorage } from '../utils/useStorage'
 
 const collection = ref('opera')
 
@@ -123,15 +127,27 @@ function onSetStoreClicked() {
 
 const debounceQuery = debounce((value) => {}, 300)
 
-const form = ref({
+const storageManager = useStorage('advanced-search-form')
+
+// create the default values for the form
+const makeEmptyForm = () => ({
     nctr: '',
     nctn: '',
     ogtn: '',
     ogtp: '',
     type: '',
 })
+const form = ref(storageManager.get() ?? makeEmptyForm())
 
-const query = ref('')
+// delete data from storage and reset form data
+function onSaveSearchClicked() {
+    storageManager.set(form.value)
+}
+// delete data from storage and reset form data
+function onResetSearchClicked() {
+    storageManager.remove()
+    form.value = makeEmptyForm()
+}
 
 function search() {
     const _form = form.value
@@ -146,12 +162,12 @@ function search() {
         rules.push(rule)
     }
     const filter = {_and:rules}
-    console.log(filter)
 
     searchStore.value.search(filter, 2)
 }
 
 async function onSearchClicked() {
+    storageManager.set(form.value)
     search()
 }
 </script>
